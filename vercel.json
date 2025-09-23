@@ -39,6 +39,4 @@
   "env": {
     "NODE_ENV": "production",
     "VERCEL": "true"
-  },
-  "rewrites": [{ "source": "/(.*)", "destination": "/" }]
-}
+  }}
