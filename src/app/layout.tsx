@@ -15,6 +15,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "pAIper - AI-Powered Research Discovery",
   description: "An intelligent research tool that uses AI to generate optimized search queries, discover academic papers from Google Scholar and Scopus, and create comprehensive research reports with APA citations.",
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg"
+  }
 };
 
 export default function RootLayout({
