@@ -1,9 +1,7 @@
 {
-  "version": 3,
-  "redirects": [],
-  "rewrites": [],
+  "version": 2,
   "functions": {
-    "src/app/api/**/route.ts": {
+    "api/**": {
       "maxDuration": 60
     }
   }
