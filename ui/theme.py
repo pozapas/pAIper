@@ -472,10 +472,28 @@ html, body, [class*="css"], .stApp, .stMarkdown{ font-family:'Inter',sans-serif!
 .stButton>button:disabled *, [data-testid="stButton"] [data-testid="stBaseButton-primary"]:disabled *{ color:#d7dbe0!important; }
 .stDownloadButton>button{ background:var(--panel)!important; color:#f5f5f5!important; border:1px solid var(--border2)!important; border-radius:10px!important; font-weight:700!important; }
 
-[data-testid="stTabs"] [data-baseweb="tab-list"]{ gap:.4rem!important; border-bottom:1px solid var(--border)!important; }
-[data-testid="stTabs"] [data-baseweb="tab"]{ color:var(--muted)!important; font-weight:700!important; font-size:.85rem!important; }
-[data-testid="stTabs"] [aria-selected="true"]{ color:#fff!important; }
-[data-testid="stTabs"] [data-baseweb="tab-highlight"]{ background:#f5f5f5!important; }
+[data-testid="stTabs"] [data-baseweb="tab-list"]{
+  gap:.72rem!important; align-items:center!important; padding:.18rem .1rem .7rem!important; margin-bottom:.9rem!important;
+  border-bottom:1px solid rgba(154,161,169,.26)!important; overflow-x:auto!important; scrollbar-width:thin!important;
+}
+[data-testid="stTabs"] [data-baseweb="tab"]{
+  min-height:34px!important; height:auto!important; padding:.42rem .82rem!important; border:1px solid rgba(154,161,169,.26)!important;
+  border-radius:999px!important; background:rgba(245,245,245,.035)!important; color:#aeb5bd!important;
+  font-weight:800!important; font-size:.82rem!important; line-height:1!important; letter-spacing:0!important;
+  transition:background .16s ease,border-color .16s ease,color .16s ease,box-shadow .16s ease,transform .16s ease!important;
+}
+[data-testid="stTabs"] [data-baseweb="tab"] p{ color:inherit!important; font-weight:inherit!important; line-height:1!important; margin:0!important; white-space:nowrap!important; }
+[data-testid="stTabs"] [data-baseweb="tab"]:hover{
+  color:#f5f5f5!important; border-color:rgba(255,159,67,.54)!important; background:rgba(255,159,67,.08)!important;
+  transform:translateY(-1px)!important;
+}
+[data-testid="stTabs"] [aria-selected="true"]{
+  color:#f5f5f5!important; border-color:rgba(255,159,67,.72)!important;
+  background:linear-gradient(180deg,rgba(255,159,67,.18),rgba(255,159,67,.075))!important;
+  box-shadow:inset 0 0 0 1px rgba(255,159,67,.18),0 8px 22px rgba(255,159,67,.12)!important;
+}
+[data-testid="stTabs"] [aria-selected="true"] p{ color:#f5f5f5!important; }
+[data-testid="stTabs"] [data-baseweb="tab-highlight"]{ background:#ff9f43!important; height:2px!important; border-radius:999px!important; }
 .stProgress > div > div > div{ background:linear-gradient(90deg,#f5f5f5,#9aa1a9)!important; }
 [data-testid="stHeader"], [data-testid="stToolbar"]{ background:transparent!important; color:var(--text)!important; }
 
