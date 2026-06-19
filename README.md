@@ -1,4 +1,4 @@
-# pAIper
+# pAIper research review console
 
 ![pAIper research review console](docs/assets/paiper-readme-hero.png)
 
