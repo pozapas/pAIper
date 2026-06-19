@@ -474,8 +474,11 @@ html, body, [class*="css"], .stApp, .stMarkdown{ font-family:'Inter',sans-serif!
 
 [data-testid="stTabs"] [data-baseweb="tab-list"]{
   gap:.72rem!important; align-items:center!important; padding:.18rem .1rem .7rem!important; margin-bottom:.9rem!important;
-  border-bottom:1px solid rgba(154,161,169,.26)!important; overflow-x:auto!important; scrollbar-width:thin!important;
+  border-bottom:0!important; overflow-x:auto!important; scrollbar-width:thin!important;
 }
+[data-testid="stTabs"] [data-baseweb="tab-border"]{ display:none!important; }
+[data-testid="stTabs"] [data-baseweb="tab-list"]::before,
+[data-testid="stTabs"] [data-baseweb="tab-list"]::after{ content:none!important; display:none!important; }
 [data-testid="stTabs"] [data-baseweb="tab"]{
   min-height:34px!important; height:auto!important; padding:.42rem .82rem!important; border:1px solid rgba(154,161,169,.26)!important;
   border-radius:999px!important; background:rgba(245,245,245,.035)!important; color:#aeb5bd!important;
