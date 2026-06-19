@@ -1,0 +1,17 @@
+# pAIper uses a custom dark theme (ui/theme.py). Pin the dark base so Streamlit's own
+# chrome (widgets, menus) matches the app's dark styling.
+
+[theme]
+base = "dark"
+primaryColor = "#22d3ee"
+backgroundColor = "#0a0e1a"
+secondaryBackgroundColor = "#141b2e"
+textColor = "#e7ecf5"
+font = "sans serif"
+
+[server]
+maxUploadSize = 50          # MB — large enough for most PDFs
+enableXsrfProtection = true
+
+[browser]
+gatherUsageStats = false

@@ -1,0 +1,22 @@
+family_label: "General"
+venues:
+  - id: general_q1
+    name: "General Q1 Journal (no specific venue)"
+    aliases: ["Q1", "general"]
+    family: general
+    type: journal
+    scope: "A top-quartile (Q1) journal in the paper's own field. Use when the exact venue is undecided."
+    evidence_bar: "Clear novel contribution, rigorous and reproducible methods, evidence-backed claims, honest limitations."
+    top_rejection_reasons:
+      - "Incremental contribution not clearly differentiated from prior work."
+      - "Claims not supported by the evidence; missing uncertainty."
+      - "Insufficient reproducibility detail."
+    checklist:
+      - "One clear, specific contribution is stated and consistent across title, abstract, intro, and conclusion."
+      - "Novelty is established against the closest prior work, not just a general gap claim."
+      - "Methods are appropriate, fully specified, and reproducible by an independent expert."
+      - "Main results report uncertainty (CIs/SE/error bars) and are in meaningful units."
+      - "Every major claim is backed by a result, citation, proof, or stated limitation."
+      - "Statistical tests match the data; assumptions checked; effect sizes reported."
+      - "Limitations and threats to validity are stated honestly."
+      - "Data/code availability and ethics/disclosure are addressed."

@@ -1,0 +1,163 @@
+family_label: "Vision / NLP / Robotics"
+venues:
+  # ── Computer Vision ──
+  - id: cvpr
+    name: "CVPR"
+    aliases: ["CVPR"]
+    family: cv
+    type: conference
+    scope: "Computer vision: recognition, detection, segmentation, generation, 3D, video."
+    evidence_bar: "Official benchmark splits, no cherry-picking, leakage-free, fair SOTA comparison."
+    top_rejection_reasons:
+      - "Cherry-picked qualitative results; split leakage."
+      - "SOTA claims under non-comparable pre-training/resolution."
+    checklist:
+      - "Benchmarked on established datasets (ImageNet, COCO, Cityscapes, nuScenes, Waymo, BDD100K) using official train/val/test splits."
+      - "No cherry-picked qualitative examples; failure cases are included in the supplement."
+      - "Strict double-blind: no author-identifying links until camera-ready."
+      - "Dataset splits do not leak between train and test (especially for video-derived frames)."
+      - "For AV/transportation papers: domain-specific baselines are cited (BEVFusion, PointPillars, CenterPoint, etc.)."
+      - "State-of-the-art claims use identical pre-training data and resolution."
+
+  - id: iccv
+    name: "ICCV"
+    aliases: ["ICCV"]
+    family: cv
+    type: conference
+    scope: "Computer vision (same rigor norms as CVPR)."
+    evidence_bar: "Official benchmark splits, no cherry-picking, leakage-free, fair SOTA comparison."
+    top_rejection_reasons:
+      - "Cherry-picked results; split leakage."
+    checklist:
+      - "Benchmarked on established datasets using official train/val/test splits."
+      - "Failure cases included; no cherry-picking."
+      - "Strict double-blind anonymization."
+      - "No train/test leakage (especially video frames)."
+      - "SOTA claims use identical pre-training data and resolution."
+
+  - id: eccv
+    name: "ECCV"
+    aliases: ["ECCV"]
+    family: cv
+    type: conference
+    scope: "Computer vision (same rigor norms as CVPR/ICCV)."
+    evidence_bar: "Official benchmark splits, no cherry-picking, leakage-free, fair SOTA comparison."
+    top_rejection_reasons:
+      - "Cherry-picked results; split leakage."
+    checklist:
+      - "Benchmarked on established datasets using official splits."
+      - "Failure cases included; no cherry-picking."
+      - "Double-blind anonymization."
+      - "No train/test leakage."
+      - "Fair SOTA comparison (pre-training, resolution)."
+
+  - id: wacv
+    name: "WACV"
+    aliases: ["WACV"]
+    family: cv
+    type: conference
+    scope: "Applications of computer vision; practical and applied CV systems."
+    evidence_bar: "Solid benchmarks and ablations; applied novelty acceptable if well-evaluated."
+    top_rejection_reasons:
+      - "Incremental result without convincing evaluation."
+      - "Split leakage or weak baselines."
+    checklist:
+      - "Evaluation uses recognized datasets with official splits; no train/test leakage."
+      - "Application or method novelty is clearly stated and motivated."
+      - "Baselines are current and fairly compared; ablations justify design choices."
+      - "Failure cases and limitations are reported."
+      - "Double-blind anonymization is respected."
+
+  # ── NLP ──
+  - id: acl
+    name: "ACL"
+    aliases: ["ACL"]
+    family: nlp
+    type: conference
+    scope: "Natural language processing: methods, resources, analysis, applications."
+    evidence_bar: "Official metrics/scripts, bootstrap significance, model cards, responsible-NLP checklist."
+    top_rejection_reasons:
+      - "Missing significance tests; no model card."
+      - "Unlabeled LLM-generated text in experiments."
+    checklist:
+      - "Standard benchmarks use official evaluation scripts (SacreBLEU, ROUGE, BERTScore)."
+      - "Significance testing for metric differences uses bootstrap resampling (p < 0.05)."
+      - "Model cards and data statements are submitted with the final paper."
+      - "LLM-generated text in experiments or annotation is labeled explicitly."
+      - "The ACL Responsible NLP Checklist is completed."
+
+  - id: emnlp
+    name: "EMNLP"
+    aliases: ["EMNLP"]
+    family: nlp
+    type: conference
+    scope: "Empirical methods in NLP."
+    evidence_bar: "Official metrics, significance testing, responsible-NLP checklist."
+    top_rejection_reasons:
+      - "No significance testing; missing reproducibility details."
+    checklist:
+      - "Official evaluation scripts/metrics are used."
+      - "Significance testing (bootstrap) supports metric comparisons."
+      - "Reproducibility details (data, splits, hyperparameters) are provided."
+      - "Responsible NLP checklist and data statements completed."
+
+  - id: naacl
+    name: "NAACL"
+    aliases: ["NAACL"]
+    family: nlp
+    type: conference
+    scope: "NLP (North American chapter of ACL); same rigor norms as ACL."
+    evidence_bar: "Official metrics, significance testing, responsible-NLP checklist."
+    top_rejection_reasons:
+      - "No significance testing; missing model card."
+    checklist:
+      - "Official evaluation scripts/metrics are used."
+      - "Bootstrap significance testing supports comparisons."
+      - "Model cards / data statements and Responsible NLP checklist are completed."
+      - "LLM-generated content is explicitly labeled."
+
+  # ── Robotics / AV learning ──
+  - id: corl
+    name: "CoRL"
+    aliases: ["CoRL"]
+    family: robotics
+    type: conference
+    scope: "Robot learning, policy/imitation learning, sim-to-real, autonomous driving."
+    evidence_bar: "Real-robot or high-fidelity sim, failure-mode analysis, generalization tests."
+    top_rejection_reasons:
+      - "No failure analysis; no generalization test."
+    checklist:
+      - "Real-robot or high-fidelity simulation (CARLA, Isaac Gym, MuJoCo, nuPlan) experiments are used."
+      - "Failure modes and safety edge cases are described, not only successes."
+      - "Generalization across environments, scenes, or tasks beyond the training distribution is tested."
+      - "Policy checkpoints, environment code, and random seeds are available for reproducibility."
+
+  - id: icra
+    name: "ICRA"
+    aliases: ["ICRA"]
+    family: robotics
+    type: conference
+    scope: "Robotics and automation: perception, planning, control, manipulation, navigation."
+    evidence_bar: "Real or high-fidelity sim experiments with quantitative evaluation."
+    top_rejection_reasons:
+      - "Insufficient experimental validation."
+    checklist:
+      - "The robotics problem and system are clearly described (hardware/sim specified)."
+      - "Quantitative evaluation on real robots or high-fidelity simulation is provided."
+      - "Baselines and ablations support the claimed contribution."
+      - "Reproducibility (code, parameters, seeds) is addressed."
+
+  - id: iros
+    name: "IROS"
+    aliases: ["IROS"]
+    family: robotics
+    type: conference
+    scope: "Intelligent robots and systems; perception, planning, control, learning."
+    evidence_bar: "Real or high-fidelity sim experiments with quantitative evaluation."
+    top_rejection_reasons:
+      - "Demonstration without systematic evaluation."
+    checklist:
+      - "System and experimental platform are clearly specified."
+      - "Quantitative results with appropriate baselines are reported."
+      - "Failure modes and limitations are discussed."
+      - "Reproducibility details are provided."

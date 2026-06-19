@@ -1,0 +1,163 @@
+family_label: "CS / AI / ML"
+venues:
+  - id: neurips
+    name: "NeurIPS"
+    aliases: ["NeurIPS", "NIPS"]
+    family: ml
+    type: conference
+    scope: "ML algorithms, theory, datasets, benchmarks, societal implications."
+    evidence_bar: "Seeds, ablations, uncertainty; theory with proofs; full reproducibility checklist."
+    top_rejection_reasons:
+      - "Missing ablation or single-seed results."
+      - "Incomplete NeurIPS checklist / no reproducibility statement."
+    checklist:
+      - "The NeurIPS paper checklist is completed (limitations, societal impact, compute, licenses, data)."
+      - "Theory papers: theorem and proof sketch in main text; full proof in appendix."
+      - "Empirical papers: >=3 random seeds per dataset; mean +/- std or error bars on all main results."
+      - "Ablation study justifies each major design choice."
+      - "Societal impact (positive and negative) is in the main paper, not hidden in the appendix."
+      - "Code and data availability are stated; reproducibility statement provided."
+      - "No test set is used for hyperparameter tuning."
+
+  - id: iclr
+    name: "ICLR"
+    aliases: ["ICLR"]
+    family: ml
+    type: conference
+    scope: "Representation learning, deep learning, theory, generalization, robustness."
+    evidence_bar: "CIs over >=3 seeds; reproducibility checklist; code highly valued."
+    top_rejection_reasons:
+      - "Single-run numbers without confidence intervals."
+      - "Missing code (a common weak-reject reason)."
+    checklist:
+      - "OpenReview submission with complete author anonymization (no self-identifying links)."
+      - "Reproducibility checklist attached: code, seeds, hardware, training details."
+      - "Empirical claims report confidence intervals over >=3 seeds, not single-run numbers."
+      - "Ablation justifies each architectural or training decision."
+      - "Generalization claims are tested on held-out domains, datasets, or distribution shifts."
+      - "Code release is provided or credibly promised."
+
+  - id: icml
+    name: "ICML"
+    aliases: ["ICML"]
+    family: ml
+    type: conference
+    scope: "ML algorithms, theory, optimization, applications."
+    evidence_bar: "Reproducibility checklist; best published baselines; compute/carbon noted."
+    top_rejection_reasons:
+      - "Baselines are not the best published results under comparable settings."
+      - "Theorems missing required conditions."
+    checklist:
+      - "ICML experimental reproducibility checklist submitted."
+      - "If theory: theorem statements include all required conditions; proofs in appendix."
+      - "Comparison baselines include the best published result on each benchmark under comparable settings."
+      - "For new benchmarks: data collection, annotation protocol, intended use, and baseline results are provided."
+      - "Compute cost and estimated carbon footprint are noted (ICML sustainability guidance)."
+
+  - id: aaai
+    name: "AAAI"
+    aliases: ["AAAI"]
+    family: cs
+    type: conference
+    scope: "Broad AI: planning, reasoning, NLP, vision, ML, robotics, multiagent, knowledge representation."
+    evidence_bar: "A technical AI advance (application alone is insufficient)."
+    top_rejection_reasons:
+      - "Application alone with no technical AI advance."
+      - "Format/length non-compliance."
+    checklist:
+      - "7-page content limit + 1 page references; supplemental appendix is separate and optional."
+      - "Primary contribution is a technical AI advance, not only an application."
+      - "AAAI responsible AI checklist submitted with the final paper."
+      - "Empirical claims include appropriate baselines and statistical treatment."
+
+  - id: ijcai
+    name: "IJCAI"
+    aliases: ["IJCAI"]
+    family: cs
+    type: conference
+    scope: "Broad AI, multiagent systems, planning, constraint reasoning, ML."
+    evidence_bar: "Contribution framed for the broad AI audience; ethics where relevant."
+    top_rejection_reasons:
+      - "Too narrow for the broad AI audience."
+    checklist:
+      - "7 pages content + 1 page references."
+      - "Contribution is framed for the broad AI audience across subfields."
+      - "Ethics statement included when results have social or safety implications."
+      - "Baselines and evaluation are appropriate for the claimed advance."
+
+  - id: kdd
+    name: "ACM SIGKDD (KDD)"
+    aliases: ["KDD", "SIGKDD"]
+    family: cs
+    type: conference
+    scope: "Data mining and knowledge discovery; Research and Applied Data Science tracks."
+    evidence_bar: "Strong tuned baselines, ablation, scalability; ADS track needs real deployment value."
+    top_rejection_reasons:
+      - "Overclaiming on weak or outdated baselines."
+      - "No scalability evidence."
+    checklist:
+      - "Research track: ablation isolates each component; baselines are tuned under the same budget."
+      - "Applied Data Science track: deployment context, scale (rows/users/throughput), and real-world outcome metric are stated."
+      - "Scalability is demonstrated (wall-clock time, memory on large datasets)."
+      - "Reproducibility: code and data availability addressed."
+
+  - id: sigspatial
+    name: "ACM SIGSPATIAL"
+    aliases: ["SIGSPATIAL"]
+    family: spatial
+    type: conference
+    scope: "Spatial data management, GIS, mobility, map matching, trajectory analysis, urban computing."
+    evidence_bar: "Spatial-leakage-free evaluation, spatial/mobility baselines, large-scale experiments."
+    top_rejection_reasons:
+      - "Ignoring spatial dependencies / spatial leakage in evaluation."
+      - "Only general ML baselines, no spatial baselines."
+    checklist:
+      - "Spatial indexing, query efficiency, or scalability is a primary evaluation dimension."
+      - "Baselines include state-of-the-art spatial and mobility methods, not only general ML methods."
+      - "Spatial leakage is explicitly prevented (geographically separated test set)."
+      - "Large-scale experiments (city or nationwide) support scalability claims."
+      - "Data pipeline (map, trajectory, POI preprocessing) is documented."
+
+  - id: chi
+    name: "ACM CHI"
+    aliases: ["CHI"]
+    family: hci
+    type: conference
+    scope: "HCI, UX, accessible interfaces, mobility applications, user studies."
+    evidence_bar: "Complete user-study protocol, effect sizes/power, systematic qualitative coding."
+    top_rejection_reasons:
+      - "Incomplete study protocol or missing IRB/ethics."
+      - "No inter-rater reliability for qualitative coding."
+    checklist:
+      - "User study protocol (participants, recruitment, tasks, compensation, IRB/ethics) is complete."
+      - "Effect sizes and power are reported for quantitative findings."
+      - "Qualitative coding is systematic with inter-rater reliability (Cohen's kappa or Krippendorff's alpha)."
+      - "Ecological validity and population bias are addressed."
+
+  - id: tist
+    name: "ACM TIST"
+    aliases: ["ACM TIST", "TIST"]
+    family: cs
+    type: journal
+    scope: "Intelligent systems and AI applications with real-world deployment."
+    evidence_bar: "Deployment context and real-world evaluation."
+    top_rejection_reasons:
+      - "No deployment context or real-world evaluation."
+    checklist:
+      - "Intelligent-systems contribution is clear and well-positioned."
+      - "Deployment context and real-world evaluation are provided."
+      - "Baselines, ablations, and uncertainty are reported."
+
+  - id: tkdd
+    name: "ACM TKDD"
+    aliases: ["ACM TKDD", "TKDD"]
+    family: cs
+    type: journal
+    scope: "Knowledge discovery and data mining; algorithmic rigor + large-scale evaluation."
+    evidence_bar: "Algorithmic rigor and large-scale evaluation."
+    top_rejection_reasons:
+      - "Insufficient algorithmic rigor or scale."
+    checklist:
+      - "Algorithmic contribution is rigorous and clearly novel."
+      - "Large-scale evaluation supports the claims."
+      - "Baselines are strong and tuned; ablations included."

@@ -1,0 +1,375 @@
+family_label: "Transportation Engineering"
+venues:
+  - id: trb_a
+    name: "Transportation Research Part A: Policy and Practice"
+    aliases: ["TR-A", "TRA"]
+    family: transportation
+    type: journal
+    scope: "Policy, planning, economics, and social aspects of transportation; travel behavior and demand at a policy level."
+    evidence_bar: "Rigorous empirical or policy analysis with clear practical/policy implications."
+    top_rejection_reasons:
+      - "No clear policy or practice contribution."
+      - "Methodology not rigorous enough to support policy conclusions."
+    checklist:
+      - "The contribution informs transportation policy, planning, or practice, not only a narrow technical result."
+      - "Data, sampling frame, and study population are representative of the policy question."
+      - "Behavioral or economic reasoning is grounded in established theory."
+      - "Policy implications are explicit, actionable, and supported by the evidence."
+
+  - id: trb_b
+    name: "Transportation Research Part B: Methodological"
+    aliases: ["TR-B", "TRB-Part-B"]
+    family: transportation
+    type: journal
+    scope: "Fundamental methodological advances: travel demand, network models, game theory, behavioral models, optimization."
+    evidence_bar: "Mathematical rigor; derivations/proofs; empirical illustration supports the method, not vice versa."
+    top_rejection_reasons:
+      - "Application of existing methods presented as a methodological contribution."
+      - "A comparison study with no new model or theory."
+    checklist:
+      - "The contribution advances a methodological framework, not only an application of existing methods."
+      - "Mathematical derivation, proof, or rigorous convergence analysis is included."
+      - "Computational complexity or tractability is addressed."
+      - "Connects to behavioral foundations (utility theory, rational choice, activity-based modeling)."
+      - "Empirical illustration (if any) supports the methodological claim, not the other way around."
+
+  - id: tr_c
+    name: "Transportation Research Part C: Emerging Technologies"
+    aliases: ["TR-C", "TRC"]
+    family: transportation
+    type: journal
+    scope: "ITS, connected/automated vehicles, ML in transportation, sensor data, real-time control and operations."
+    evidence_bar: "Real transportation data or a well-justified, calibrated simulation; strong recent baselines."
+    top_rejection_reasons:
+      - "Algorithm/ML contribution without a transportation problem as the central motivation."
+      - "Weak or outdated baselines; a neural net beating a 2015 method."
+    checklist:
+      - "The ML or technology contribution has a specific transportation problem as the central motivation."
+      - "Evaluation uses real transportation data or a well-justified, calibrated simulation."
+      - "Algorithmic novelty is distinguished from application novelty; both are valid but positioned correctly."
+      - "Generalizability across cities, road types, or operating conditions is evaluated or stated as a limitation."
+      - "Real-time feasibility or deployment constraints are discussed if operational use is claimed."
+      - "Strong recent baselines are included."
+
+  - id: tr_d
+    name: "Transportation Research Part D: Transport and Environment"
+    aliases: ["TR-D", "TRD"]
+    family: transportation
+    type: journal
+    scope: "Environmental impacts: emissions, noise, energy, climate, sustainability."
+    evidence_bar: "Defensible emission/energy methodology with stated year, geography, and uncertainty."
+    top_rejection_reasons:
+      - "Emission/energy methodology not defensible or not cited."
+      - "No uncertainty propagation through the calculation."
+    checklist:
+      - "Emission calculations use a defensible methodology (MOVES, HBEFA, COPERT, or peer-reviewed equivalent) with year and geography stated."
+      - "CO2-equivalent units are used consistently; GWP conversion factors are cited."
+      - "Statistical uncertainty propagates through the emission or energy calculation."
+      - "Rebound effects and behavioral responses to efficiency improvements are discussed when relevant."
+
+  - id: tr_e
+    name: "Transportation Research Part E: Logistics and Transportation Review"
+    aliases: ["TR-E", "TRE"]
+    family: transportation
+    type: journal
+    scope: "Logistics, supply chain, freight, and transportation economics/operations research."
+    evidence_bar: "Rigorous OR/economics modeling with managerial or operational insight."
+    top_rejection_reasons:
+      - "Model without managerial/operational insight."
+      - "Insufficient validation on realistic logistics data."
+    checklist:
+      - "The logistics/freight/supply-chain problem is clearly motivated and bounded."
+      - "Optimization or economic model assumptions are stated and justified."
+      - "Solution method scalability is addressed for realistic instance sizes."
+      - "Managerial insights or operational implications are made explicit."
+
+  - id: tr_f
+    name: "Transportation Research Part F: Traffic Psychology and Behaviour"
+    aliases: ["TR-F", "TRF"]
+    family: transportation
+    type: journal
+    scope: "Driver behavior, human factors, traffic psychology, acceptance of automated systems."
+    evidence_bar: "Sound experimental/survey psychology with validated instruments and adequate power."
+    top_rejection_reasons:
+      - "Weak study design or underpowered samples."
+      - "Unvalidated psychometric instruments."
+    checklist:
+      - "Study design (experimental/survey/observational) is appropriate for the behavioral question."
+      - "Instruments are validated; reliability (e.g. Cronbach's alpha) is reported."
+      - "Sample size/power is adequate and participant recruitment is described."
+      - "Effect sizes and confidence intervals are reported alongside p-values."
+      - "Ethics/IRB approval and informed consent are reported."
+
+  - id: transportation_science
+    name: "Transportation Science (INFORMS)"
+    aliases: ["TS", "Transp Sci"]
+    family: transportation
+    type: journal
+    scope: "Operations research and methodological foundations of transportation systems; network optimization, demand modeling."
+    evidence_bar: "High mathematical rigor; novel models, algorithms, or theory."
+    top_rejection_reasons:
+      - "Insufficient methodological novelty for an OR audience."
+      - "Lack of rigorous analysis (proofs, bounds, complexity)."
+    checklist:
+      - "Contribution is a novel model, algorithm, or theoretical result for transportation OR."
+      - "Mathematical formulation is rigorous; assumptions and properties are proven where claimed."
+      - "Computational experiments use appropriate benchmark instances."
+      - "Comparison against the best known methods is included."
+
+  - id: transportation_springer
+    name: "Transportation (Springer)"
+    aliases: ["Transportation journal"]
+    family: transportation
+    type: journal
+    scope: "Travel behavior, demand modeling, planning, and policy; behavioral and quantitative methods."
+    evidence_bar: "Sound behavioral/econometric modeling with policy or planning relevance."
+    top_rejection_reasons:
+      - "No clear behavioral or planning contribution."
+      - "Econometric specification not justified."
+    checklist:
+      - "Behavioral or demand-modeling contribution is clearly stated."
+      - "Model specification (discrete choice, etc.) is theoretically justified."
+      - "Data and sampling are appropriate; endogeneity/selection addressed where relevant."
+      - "Planning or policy relevance is articulated."
+
+  - id: trr
+    name: "Transportation Research Record (TRR)"
+    aliases: ["TRR", "TRB journal"]
+    family: transportation
+    type: journal
+    scope: "Practice-relevant transportation research across all TRB committee topics."
+    evidence_bar: "Clear methodology with explicit practical implications for agencies/practitioners."
+    top_rejection_reasons:
+      - "No agency or practitioner relevance."
+      - "Methodology not clearly described."
+    checklist:
+      - "Paper fits a numbered TRB standing committee scope."
+      - "Practical implication is explicit for practitioners and agency staff (the primary audience)."
+      - "Methodology and data are clearly described and reproducible at a practitioner level."
+      - "Findings are placed in the context of current practice."
+
+  - id: trbam
+    name: "TRB Annual Meeting (TRBAM)"
+    aliases: ["TRBAM", "TRB Annual Meeting", "TRB"]
+    family: transportation
+    type: conference
+    scope: "Annual meeting spanning all transportation topics; abstracts/papers reviewed by standing committees."
+    evidence_bar: "Sound, committee-relevant work; practical relevance valued."
+    top_rejection_reasons:
+      - "Paper exceeds the word limit (figures/tables count)."
+      - "No clear committee fit or practitioner relevance."
+    checklist:
+      - "Paper fits a numbered TRB standing committee scope."
+      - "7,500-word limit respected (figures and tables count; references excluded)."
+      - "Practical implication for practitioners and agencies is explicit."
+      - "If targeting TRR after acceptance, the paper can withstand separate full peer review."
+
+  - id: aap
+    name: "Accident Analysis & Prevention"
+    aliases: ["AAP", "AA&P"]
+    family: transportation
+    type: journal
+    scope: "Crash causation, severity, risk factors, countermeasure evaluation."
+    evidence_bar: "Correct exposure denominator, clustering modeled, valid study design for causal claims."
+    top_rejection_reasons:
+      - "Causal countermeasure claim from cross-sectional or before/after data without a control group."
+      - "OLS used on ordinal severity codes; exposure denominator incorrect."
+    checklist:
+      - "Exposure denominator is correct for the study type (VMT, AADT, person-trips, hours exposed, segment length x AADT)."
+      - "Regression-to-the-mean bias is addressed in before/after designs (EB/HSM method or comparison group)."
+      - "Spatial and site clustering is modeled (NB with random effects, HGLM, ZINB, or GEE)."
+      - "Severity ordering is modeled correctly (ordinal logistic or probit, not OLS on severity codes)."
+      - "Countermeasure claims use treatment/control or quasi-experimental design."
+      - "Safety conclusions distinguish frequency, risk, severity, surrogate, and perception measures."
+
+  - id: amar
+    name: "Analytic Methods in Accident Research"
+    aliases: ["AMAR"]
+    family: transportation
+    type: journal
+    scope: "Methodological advances for crash/safety analysis: econometric and statistical models."
+    evidence_bar: "Methodological novelty in safety modeling with rigorous statistical treatment."
+    top_rejection_reasons:
+      - "No methodological advance over standard crash models."
+      - "Unobserved heterogeneity not addressed."
+    checklist:
+      - "The methodological contribution to safety analysis is clearly novel."
+      - "Unobserved heterogeneity (random parameters, latent classes) is considered where appropriate."
+      - "Model selection, goodness-of-fit, and out-of-sample validation are reported."
+      - "Exposure and clustering are handled correctly."
+
+  - id: tits
+    name: "IEEE Transactions on Intelligent Transportation Systems (T-ITS)"
+    aliases: ["T-ITS", "TITS", "IEEE T-ITS"]
+    family: transportation
+    type: journal
+    scope: "ITS technology: sensing, communication, control, autonomous vehicles, traffic management."
+    evidence_bar: "System-level evaluation with quantified architecture, latency, scalability, and strong baselines."
+    top_rejection_reasons:
+      - "Demonstration without systematic evaluation."
+      - "No strong, recently published baseline."
+    checklist:
+      - "System architecture, latency, and scalability are quantified."
+      - "Hardware, sensor type, or communication protocol is specified."
+      - "High-fidelity simulation (SUMO, VISSIM, CARLA) or real-world deployment is used."
+      - "Safety, robustness under noise/adversarial conditions, and failure modes are reported."
+      - "At least one strong, recently published baseline is included."
+
+  - id: tiv
+    name: "IEEE Transactions on Intelligent Vehicles (T-IV)"
+    aliases: ["T-IV", "TIV", "IEEE T-IV"]
+    family: transportation
+    type: journal
+    scope: "Intelligent and automated vehicles: perception, planning, control, human factors."
+    evidence_bar: "Evaluation on standard AV datasets or real vehicles; safety and deployment addressed."
+    top_rejection_reasons:
+      - "No evaluation on recognized AV datasets or real-world tests."
+      - "Safety/deployment considerations missing."
+    checklist:
+      - "Scope is perception, prediction, planning, or control for intelligent/automated vehicles."
+      - "Evaluated on standard AV datasets (nuScenes, Waymo Open, KITTI, Argoverse) or real-world tests."
+      - "Comparison against domain-specific baselines is included."
+      - "Safety and deployment considerations are explicitly addressed."
+
+  - id: transportmetrica_a
+    name: "Transportmetrica A: Transport Science"
+    aliases: ["Transportmetrica A"]
+    family: transportation
+    type: journal
+    scope: "Network equilibrium, route choice, simulation; analytical/simulation methods with mathematical grounding."
+    evidence_bar: "Analytical or simulation-based methods with mathematical grounding."
+    top_rejection_reasons:
+      - "Insufficient mathematical grounding."
+    checklist:
+      - "Contribution uses analytical or simulation-based methods with mathematical grounding (equilibrium, route choice, simulation)."
+      - "Assumptions are stated; solution existence/uniqueness or convergence is discussed."
+      - "Numerical experiments validate the analytical claims."
+
+  - id: transportmetrica_b
+    name: "Transportmetrica B: Transport Dynamics"
+    aliases: ["Transportmetrica B"]
+    family: transportation
+    type: journal
+    scope: "Real-time data, state estimation, short-term prediction; dynamic systems perspective."
+    evidence_bar: "Dynamic-systems treatment of traffic with real/realistic data."
+    top_rejection_reasons:
+      - "No genuine dynamic-systems perspective."
+    checklist:
+      - "A dynamic-systems perspective (state estimation, prediction, real-time data) is central."
+      - "Data are real or realistically simulated at the relevant temporal resolution."
+      - "Predictive performance is validated with appropriate temporal cross-validation."
+
+  - id: iatss
+    name: "IATSS Research"
+    aliases: ["IATSS"]
+    family: transportation
+    type: journal
+    scope: "Transportation science and policy with an Asia-Pacific focus; practice implications."
+    evidence_bar: "Sound study with explicit policy/practice implications."
+    top_rejection_reasons:
+      - "No explicit policy or practice implication."
+    checklist:
+      - "Policy and practice implications are explicit."
+      - "Regional (Asia-Pacific) relevance is articulated where applicable."
+      - "Methodology supports the stated conclusions."
+
+  - id: itsc
+    name: "IEEE Intelligent Transportation Systems Conference (ITSC)"
+    aliases: ["ITSC"]
+    family: transportation
+    type: conference
+    scope: "ITS algorithms, systems, and methods; conference-length contributions."
+    evidence_bar: "Quantitative comparison against published baselines on real or realistic data."
+    top_rejection_reasons:
+      - "No quantitative comparison against published baselines."
+      - "Format/length not compliant."
+    checklist:
+      - "6-page IEEE double-column format respected (1 additional page allowed with fee)."
+      - "Algorithm, system, or method novelty is the primary claim."
+      - "Quantitative comparison against published baselines on real or realistic simulation data."
+
+  - id: iv
+    name: "IEEE Intelligent Vehicles Symposium (IV)"
+    aliases: ["IV", "IEEE IV"]
+    family: transportation
+    type: conference
+    scope: "Perception, prediction, planning, control for automated and connected vehicles."
+    evidence_bar: "Evaluation on standard AV datasets or real-world tests; safety discussed."
+    top_rejection_reasons:
+      - "No standard AV dataset or real-world evaluation."
+      - "Safety/deployment not mentioned."
+    checklist:
+      - "Scope is perception, prediction, planning, or control for automated/connected vehicles."
+      - "Evaluated on standard AV datasets (nuScenes, Waymo Open, KITTI, Argoverse) or real-world tests."
+      - "Safety and deployment considerations are explicitly mentioned."
+
+  - id: asce_jte
+    name: "ASCE Journal of Transportation Engineering, Part A: Systems"
+    aliases: ["ASCE JTE", "JTE Part A"]
+    family: transportation
+    type: journal
+    scope: "Transportation systems engineering: operations, infrastructure, planning, and analysis."
+    evidence_bar: "Engineering rigor with practical relevance to transportation systems."
+    top_rejection_reasons:
+      - "Insufficient engineering rigor or practical relevance."
+    checklist:
+      - "The transportation-systems engineering problem is clearly defined."
+      - "Methods follow accepted engineering practice and are validated."
+      - "Results are relevant to design, operation, or planning of transportation systems."
+
+  - id: tbs
+    name: "Travel Behaviour and Society"
+    aliases: ["TBS"]
+    family: transportation
+    type: journal
+    scope: "Travel behavior, activity patterns, attitudes, and social dimensions of mobility."
+    evidence_bar: "Sound behavioral modeling/survey methods with societal relevance."
+    top_rejection_reasons:
+      - "Weak behavioral grounding or sampling."
+    checklist:
+      - "Behavioral question and theoretical framing are clear."
+      - "Survey/observational design and sampling are sound; biases discussed."
+      - "Models are appropriate (discrete choice, structural equation, etc.) and well-specified."
+
+  - id: jsr
+    name: "Journal of Safety Research"
+    aliases: ["JSR"]
+    family: transportation
+    type: journal
+    scope: "Safety across transportation and other domains: risk, prevention, evaluation."
+    evidence_bar: "Valid study design for safety/risk claims; correct exposure and statistics."
+    top_rejection_reasons:
+      - "Causal safety claim without adequate design."
+    checklist:
+      - "Study design is valid for the safety/risk question."
+      - "Exposure measures and denominators are correct."
+      - "Statistical methods match the data structure; uncertainty reported."
+
+  - id: safety_science
+    name: "Safety Science"
+    aliases: ["Safety Science"]
+    family: transportation
+    type: journal
+    scope: "Safety management, risk analysis, human/organizational factors across domains."
+    evidence_bar: "Rigorous risk/safety analysis with theoretical or practical contribution."
+    top_rejection_reasons:
+      - "No clear safety-science contribution."
+    checklist:
+      - "Risk or safety contribution is clearly framed within safety-science theory."
+      - "Methods (qualitative or quantitative) are rigorous and transparent."
+      - "Practical or managerial safety implications are stated."
+
+  - id: dst
+    name: "Data Science for Transportation (Springer)"
+    aliases: ["DST"]
+    family: transportation
+    type: journal
+    scope: "Data-driven and ML methods applied to transportation problems."
+    evidence_bar: "Both data-science rigor (baselines, validation) and transportation relevance."
+    top_rejection_reasons:
+      - "ML rigor or transportation framing missing."
+    checklist:
+      - "The transportation problem is the central motivation, not a convenient test bed."
+      - "Data provenance, preprocessing, and splits are documented; leakage prevented."
+      - "Strong baselines, ablations, and uncertainty (seeds/folds) are reported."
+      - "Interpretability is addressed when the model affects safety or equity decisions."
