@@ -95,7 +95,10 @@ def radar_svg(dims: list[DimensionResult], size: int = 340) -> str:
     n = len(dims)
     if n < 3:
         return ""
-    cx = cy = size / 2
+    canvas_w = size + 138
+    canvas_h = size + 30
+    cx = canvas_w / 2
+    cy = canvas_h / 2
     R = size / 2 - 66
     rings = []
     for frac in (0.25, 0.5, 0.75, 1.0):
@@ -109,18 +112,26 @@ def radar_svg(dims: list[DimensionResult], size: int = 340) -> str:
         spokes.append(f'<line x1="{cx}" y1="{cy}" x2="{ex:.1f}" y2="{ey:.1f}" stroke="#26304a" stroke-width="1"/>')
         frac = max(0.04, d.score / 10.0)
         data_pts.append(f"{cx + R*frac*math.cos(ang):.1f},{cy + R*frac*math.sin(ang):.1f}")
-        lx, ly = cx + (R+24)*math.cos(ang), cy + (R+24)*math.sin(ang)
+        lx, ly = cx + (R+28)*math.cos(ang), cy + (R+28)*math.sin(ang)
         anchor = "middle" if abs(math.cos(ang)) < 0.3 else ("start" if math.cos(ang) > 0 else "end")
-        short = d.label.split("&")[0].split(",")[0].strip()[:16]
+        short = {
+            "contribution": "Contribution",
+            "related_work": "Related Work",
+            "methodology": "Methodology",
+            "statistics": "Statistical Validity",
+            "results_claims": "Results",
+            "reproducibility": "Reproducibility",
+            "writing": "Writing",
+        }.get(d.key, d.label.split("&")[0].split(",")[0].strip())
         labels.append(
-            f'<text x="{lx:.1f}" y="{ly:.1f}" text-anchor="{anchor}" font-size="10.5" fill="#9fb0c9" font-family="Inter">{esc(short)}</text>'
-            f'<text x="{lx:.1f}" y="{ly+12:.1f}" text-anchor="{anchor}" font-size="10" font-weight="800" fill="#22d3ee" font-family="Inter">{d.score:.1f}</text>'
+            f'<text x="{lx:.1f}" y="{ly:.1f}" text-anchor="{anchor}" font-size="10.5" fill="#d7dbe0" font-family="Inter">{esc(short)}</text>'
+            f'<text x="{lx:.1f}" y="{ly+12:.1f}" text-anchor="{anchor}" font-size="10" font-weight="800" fill="#ff9f43" font-family="Inter">{d.score:.1f}</text>'
         )
     return f"""
-<svg width="{size}" height="{size}" viewBox="0 0 {size} {size}">
+<svg width="{canvas_w}" height="{canvas_h}" viewBox="0 0 {canvas_w} {canvas_h}" style="max-width:100%;height:auto">
   {''.join(rings)}{''.join(spokes)}
-  <polygon points="{' '.join(data_pts)}" fill="rgba(34,211,238,0.18)" stroke="#22d3ee" stroke-width="2"/>
-  {''.join(f'<circle cx="{p.split(",")[0]}" cy="{p.split(",")[1]}" r="2.5" fill="#a5b4fc"/>' for p in data_pts)}
+  <polygon points="{' '.join(data_pts)}" fill="rgba(255,159,67,0.16)" stroke="#ff9f43" stroke-width="2"/>
+  {''.join(f'<circle cx="{p.split(",")[0]}" cy="{p.split(",")[1]}" r="2.6" fill="#ffd09a"/>' for p in data_pts)}
   {''.join(labels)}
 </svg>"""
 

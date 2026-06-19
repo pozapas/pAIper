@@ -402,6 +402,23 @@ html, body, [class*="css"], .stApp, .stMarkdown{ font-family:'Inter',sans-serif!
 [data-testid="stSidebar"] textarea, .stTextInput input, .stNumberInput input{
   background:#111720!important; border:1px solid var(--border2)!important; color:var(--text)!important; border-radius:10px!important;
 }
+[data-testid="stMultiSelect"] [data-baseweb="select"]>div{
+  background:#111720!important; border:1px solid var(--border2)!important; color:var(--text)!important; border-radius:10px!important;
+}
+[data-testid="stMultiSelect"] [data-baseweb="select"]>div:focus-within{
+  border-color:rgba(255,159,67,.72)!important; box-shadow:0 0 0 1px rgba(255,159,67,.28)!important;
+}
+[data-testid="stMultiSelect"] [data-baseweb="tag"]{
+  background:linear-gradient(180deg,#ffb15c,#ff9f43)!important; border:1px solid rgba(255,189,122,.9)!important;
+  border-radius:8px!important; box-shadow:0 6px 18px rgba(255,159,67,.16)!important; color:#0d1117!important;
+}
+[data-testid="stMultiSelect"] [data-baseweb="tag"] span,
+[data-testid="stMultiSelect"] [data-baseweb="tag"] p{
+  color:#0d1117!important; font-weight:900!important;
+}
+[data-testid="stMultiSelect"] [data-baseweb="tag"] svg{
+  color:#0d1117!important; fill:#0d1117!important; opacity:.82!important;
+}
 
 .hero{ max-width:none!important; background:linear-gradient(120deg,#161b24 0%, #1f2630 46%, #111720 100%)!important;
   border:1px solid var(--border2)!important; border-radius:20px!important; padding:2rem 2.3rem!important; margin:.8rem 0 1.3rem!important;
