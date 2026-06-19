@@ -615,9 +615,18 @@ html, body, [class*="css"], .stApp, .stMarkdown{ font-family:'Inter',sans-serif!
 div[role="dialog"] > div:first-child{ display:none!important; }
 div[role="dialog"] > button[aria-label="Close"]{ display:none!important; }
 .intro-dialog-brand{ display:none!important; }
-.hills-brand{ position:absolute; left:1rem; right:1rem; bottom:1rem; z-index:4; display:flex!important; align-items:baseline!important; justify-content:center!important; gap:.05rem!important;
-  color:#f5f5f5!important; font-size:1.18rem!important; line-height:1.08!important; font-weight:900!important; letter-spacing:-.01em!important; }
+.hills-brand{ position:absolute; right:1rem; bottom:.9rem; z-index:4; display:flex!important; align-items:baseline!important; justify-content:flex-end!important; gap:.05rem!important;
+  color:#f5f5f5!important; font-size:.9rem!important; line-height:1.08!important; font-weight:900!important; letter-spacing:-.01em!important; text-align:right!important;
+  text-shadow:0 8px 22px rgba(0,0,0,.7)!important; }
 .hills-brand span{ color:#ff9f43!important; text-shadow:0 0 18px rgba(255,159,67,.45)!important; }
+.hills-credit{ position:absolute; left:1rem; bottom:.8rem; z-index:5; display:grid!important; gap:.16rem!important; max-width:8.8rem!important;
+  color:#9aa1a9!important; font-size:.55rem!important; line-height:1.22!important; font-weight:800!important; letter-spacing:.01em!important; }
+.hills-credit a{ color:#f4d5b0!important; text-decoration:none!important; }
+.hills-credit a:hover{ color:#ff9f43!important; text-decoration:underline!important; text-underline-offset:2px!important; }
+.github-link{ display:inline-flex!important; align-items:center!important; gap:.25rem!important; width:max-content!important; max-width:100%!important;
+  color:#d7dbe0!important; overflow:hidden!important; white-space:nowrap!important; }
+.github-link svg{ width:12px!important; height:12px!important; flex:0 0 12px!important; fill:currentColor!important; opacity:.92!important; }
+.github-link span{ overflow:hidden!important; text-overflow:ellipsis!important; }
 .intro-hills-art{ position:relative!important; min-height:370px!important; overflow:hidden!important; border-right:1px solid rgba(245,245,245,.11)!important;
   background:
     radial-gradient(circle at 52% 38%, rgba(255,159,67,.2), transparent 33%),
@@ -660,7 +669,8 @@ div[role="dialog"] > button[aria-label="Close"]{ display:none!important; }
   50%{ transform:translateY(-8px); opacity:1; }
 }
 @media (max-width: 820px){
-  .hills-brand{ bottom:.82rem!important; font-size:1.05rem!important; }
+  .hills-brand{ right:.82rem!important; bottom:.62rem!important; font-size:.75rem!important; }
+  .hills-credit{ left:.82rem!important; bottom:.58rem!important; max-width:8rem!important; font-size:.5rem!important; }
   .intro-hills-art{ min-height:230px!important; border-right:0!important; border-bottom:1px solid rgba(245,245,245,.11)!important; }
   .hills-svg{ transform:perspective(380px) rotateX(58deg) translateY(-2px) scale(1.2); }
   .hills-caption{ display:none!important; }

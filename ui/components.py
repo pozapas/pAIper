@@ -256,14 +256,14 @@ def intro_popup() -> None:
     st.markdown(
         f"""
 <div class="intro-wrap">
-  <aside class="intro-hills-art" aria-hidden="true">
+  <aside class="intro-hills-art">
     <div class="hills-glow"></div>
     <div class="hills-float-title">
       <span>Manuscripts That Stand</span>
       <strong>Stronger In Review</strong>
       <em>with verified claims</em>
     </div>
-    <svg class="hills-svg" viewBox="0 0 280 245" role="img" aria-label="moving review terrain">
+    <svg class="hills-svg" viewBox="0 0 280 245" aria-hidden="true" focusable="false">
       <defs>
         <linearGradient id="hillStroke" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stop-color="#f5f5f5" stop-opacity=".62"/>
@@ -276,6 +276,15 @@ def intro_popup() -> None:
     </svg>
     <div class="hills-caption">
       <span>Venue</span><span>Claims</span><span>Citations</span>
+    </div>
+    <div class="hills-credit">
+      <span>Developed by <a href="https://pozapas.github.io/" target="_blank" rel="noopener noreferrer">Amir Rafe</a></span>
+      <a class="github-link" href="https://github.com/pozapas/pAIper" target="_blank" rel="noopener noreferrer" aria-label="pozapas pAIper GitHub repository">
+        <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+          <path d="M8 .2A8 8 0 0 0 5.47 15.8c.4.07.55-.17.55-.38v-1.49c-2.23.49-2.7-.95-2.7-.95-.36-.92-.89-1.17-.89-1.17-.73-.5.06-.49.06-.49.8.06 1.23.83 1.23.83.72 1.22 1.88.87 2.34.66.07-.52.28-.87.51-1.07-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82A7.65 7.65 0 0 1 8 4.07c.68 0 1.36.09 2 .27 1.52-1.03 2.19-.82 2.19-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.88 3.75-3.66 3.95.29.25.54.73.54 1.48v2.2c0 .21.14.46.55.38A8 8 0 0 0 8 .2Z"/>
+        </svg>
+        <span>pozapas/pAIper</span>
+      </a>
     </div>
     <div class="hills-brand">p<span>AI</span>per Review Console</div>
   </aside>
