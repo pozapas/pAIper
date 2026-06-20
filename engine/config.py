@@ -111,11 +111,6 @@ OCR_METHODS: dict[str, dict] = {
         "key_label": "Mistral OCR API key",
         "key_url": "https://console.mistral.ai/api-keys",
     },
-    "marker": {
-        "label": "Marker",
-        "desc": "High-quality PDF-to-Markdown parser. Requires the optional 'marker-pdf' package.",
-        "needs_key": None,
-    },
 }
 
 

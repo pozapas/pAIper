@@ -16,7 +16,6 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
-import shutil
 import tempfile
 from pathlib import Path
 
@@ -66,9 +65,6 @@ def _ocr_setup_error(ocr_method: str, ocr_api_key: str = "") -> str:
             return "Mistral OCR needs a Mistral API key. Paste it in Advanced under PDF parsing engine, or choose Auto/PyMuPDF."
         if importlib.util.find_spec("mistral_ocr") is None:
             return "Mistral OCR support is not installed in this environment. Install the optional `mistral-ocr-cli` package, or choose Auto/PyMuPDF."
-    if ocr_method == "marker":
-        if importlib.util.find_spec("marker") is None and shutil.which("marker_single") is None:
-            return "Marker is not installed or available on PATH. Install the optional `marker-pdf` package, or choose Auto/PyMuPDF."
     return ""
 
 
@@ -78,8 +74,6 @@ def _friendly_review_error(exc: Exception) -> str:
         return "Mistral OCR support is not installed. Install the optional `mistral-ocr-cli` package, or choose Auto/PyMuPDF."
     if "MISTRAL_API_KEY not set" in msg:
         return "Mistral OCR needs a Mistral API key. Paste it in Advanced under PDF parsing engine, or choose Auto/PyMuPDF."
-    if "marker_single not found on PATH" in msg:
-        return "Marker is not installed or available on PATH. Install the optional `marker-pdf` package, or choose Auto/PyMuPDF."
     return msg
 # Sidebar
 # ─────────────────────────────────────────────────────────────────────────────
