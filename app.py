@@ -13,8 +13,10 @@ Streamlit front-end.
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import os
+import shutil
 import tempfile
 from pathlib import Path
 
@@ -43,6 +45,7 @@ from engine.llm import LLMClient
 from engine.report import ReviewReport
 from engine.exporters.md_export import report_to_markdown
 from engine.exporters.docx_export import report_to_docx
+from engine.exporters.branding import GENERATED_BY, GITHUB_ICON_URL, PAIPER_REPO_LABEL, PAIPER_REPO_URL
 from ui import components as C
 from ui.theme import inject as inject_theme
 
@@ -55,6 +58,29 @@ except Exception:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+
+def _ocr_setup_error(ocr_method: str, ocr_api_key: str = "") -> str:
+    """Return a user-facing setup error for forced optional PDF parsers."""
+    if ocr_method == "mistral":
+        if not (ocr_api_key.strip() or os.environ.get("MISTRAL_API_KEY")):
+            return "Mistral OCR needs a Mistral API key. Paste it in Advanced under PDF parsing engine, or choose Auto/PyMuPDF."
+        if importlib.util.find_spec("mistral_ocr") is None:
+            return "Mistral OCR support is not installed in this environment. Install the optional `mistral-ocr-cli` package, or choose Auto/PyMuPDF."
+    if ocr_method == "marker":
+        if importlib.util.find_spec("marker") is None and shutil.which("marker_single") is None:
+            return "Marker is not installed or available on PATH. Install the optional `marker-pdf` package, or choose Auto/PyMuPDF."
+    return ""
+
+
+def _friendly_review_error(exc: Exception) -> str:
+    msg = str(exc)
+    if "No module named 'mistral_ocr'" in msg:
+        return "Mistral OCR support is not installed. Install the optional `mistral-ocr-cli` package, or choose Auto/PyMuPDF."
+    if "MISTRAL_API_KEY not set" in msg:
+        return "Mistral OCR needs a Mistral API key. Paste it in Advanced under PDF parsing engine, or choose Auto/PyMuPDF."
+    if "marker_single not found on PATH" in msg:
+        return "Marker is not installed or available on PATH. Install the optional `marker-pdf` package, or choose Auto/PyMuPDF."
+    return msg
 # Sidebar
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -141,6 +167,23 @@ stored or logged by this app. Reviews use tokens billed to your own account.*
                 help="Only affects PDF inputs.",
             )
             st.caption(OCR_METHODS[ocr_method]["desc"])
+            ocr_info = OCR_METHODS[ocr_method]
+            ocr_api_key = ""
+            if ocr_info.get("needs_key"):
+                key_env = ocr_info["needs_key"]
+                key_value = os.environ.get(key_env, "")
+                if not key_value and key_env == prov["key_env"]:
+                    key_value = api_key.strip()
+                ocr_api_key = st.text_input(
+                    ocr_info.get("key_label", "OCR API key"),
+                    type="password",
+                    value=key_value,
+                    placeholder="paste your OCR key...",
+                    help="Used only for PDF parsing. Stored in this browser session only.",
+                    key="ocr_api_key_input",
+                )
+                if ocr_info.get("key_url"):
+                    st.markdown(f"[Get a Mistral OCR key]({ocr_info['key_url']})")
             reasoning = st.selectbox(
                 "Reasoning effort", ["(none)", "low", "medium", "high"], index=0,
                 help="For models that support extended thinking (o-series, Claude, Gemini).",
@@ -158,6 +201,7 @@ stored or logged by this app. Reviews use tokens billed to your own account.*
             "venue_id": venue_id,
             "check_citations": check_citations,
             "ocr_method": ocr_method,
+            "ocr_api_key": ocr_api_key.strip(),
             "reasoning": None if reasoning == "(none)" else reasoning,
             "concurrent": concurrent,
             "max_citations": int(max_citations),
@@ -325,6 +369,19 @@ def render_results(r: ReviewReport) -> None:
                                    mime="application/pdf", use_container_width=True)
             except Exception:
                 st.button("PDF (use Word → Save as PDF)", disabled=True, use_container_width=True)
+        st.markdown(
+            f"""
+            <div style="display:inline-flex;align-items:center;gap:.42rem;margin:.72rem 0 .2rem;
+                        color:#9aa1a9;font-size:.78rem;font-weight:800;">
+              <img src="{GITHUB_ICON_URL}" alt="GitHub" width="14" height="14" />
+              <span>{GENERATED_BY}</span>
+              <span style="color:#424952">&middot;</span>
+              <a href="{PAIPER_REPO_URL}" target="_blank" rel="noopener noreferrer"
+                 style="color:#ff9f43;text-decoration:none;">{PAIPER_REPO_LABEL}</a>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
         st.markdown("---")
         with st.expander("Preview Markdown report"):
             st.markdown(md)
@@ -390,6 +447,15 @@ def main() -> None:
             st.error(f"Please enter your {cfg['provider_name']} API key in the sidebar.")
             return
 
+        if uploaded is not None and Path(uploaded.name).suffix.lower() == ".pdf":
+            ocr_error = _ocr_setup_error(cfg["ocr_method"], cfg.get("ocr_api_key", ""))
+            if ocr_error:
+                st.error(ocr_error)
+                return
+            ocr_key_env = OCR_METHODS[cfg["ocr_method"]].get("needs_key")
+            if ocr_key_env and cfg.get("ocr_api_key"):
+                os.environ[ocr_key_env] = cfg["ocr_api_key"]
+
         # Build the input path
         tmp_path = None
         title_override = ""
@@ -438,7 +504,7 @@ def main() -> None:
             status.empty()
         except Exception as exc:
             bar.empty()
-            st.error(f"Review failed: {exc}")
+            st.error(f"Review failed: {_friendly_review_error(exc)}")
             import traceback
             with st.expander("Technical details"):
                 st.code(traceback.format_exc())

@@ -108,10 +108,12 @@ OCR_METHODS: dict[str, dict] = {
         "label": "Mistral OCR (cloud, ~$0.001/page)",
         "desc": "Best quality for scanned PDFs, tables, equations. Needs a Mistral API key.",
         "needs_key": "MISTRAL_API_KEY",
+        "key_label": "Mistral OCR API key",
+        "key_url": "https://console.mistral.ai/api-keys",
     },
     "marker": {
-        "label": "Marker (local, free)",
-        "desc": "High-quality offline PDF→Markdown. Requires the optional 'marker-pdf' package.",
+        "label": "Marker",
+        "desc": "High-quality PDF-to-Markdown parser. Requires the optional 'marker-pdf' package.",
         "needs_key": None,
     },
 }
