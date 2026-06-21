@@ -18,6 +18,7 @@ import json
 import os
 import tempfile
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -104,6 +105,11 @@ def _normalize_ollama_url(base_url: str) -> str:
     if url and "://" not in url:
         url = "http://" + url
     return url.rstrip("/")
+
+
+def _is_loopback_url(base_url: str) -> bool:
+    host = (urllib.parse.urlparse(_normalize_ollama_url(base_url)).hostname or "").lower()
+    return host in {"localhost", "127.0.0.1", "::1", "0.0.0.0"}
 
 
 def _fetch_ollama_models(base_url: str, timeout: float = 2.5) -> tuple[list[str], str]:
@@ -211,11 +217,22 @@ stored or logged by this app. Reviews use tokens billed to your own account.*
             )
             ollama_models, ollama_error = _fetch_ollama_models(base_url)
             if ollama_error:
-                st.warning(
-                    f"{ollama_error} Start Ollama locally, or enter a reachable Ollama-compatible endpoint.",
-                    icon=":material/power_settings_new:",
-                )
-            if ollama_models:
+                if _is_loopback_url(base_url):
+                    st.info(
+                        "pAIper cannot reach Ollama at `localhost`. If you are using "
+                        "`paiper.streamlit.app`, this is expected because the cloud app cannot "
+                        "see Ollama on your laptop. For private local models, run pAIper locally "
+                        "and start Ollama. To use Ollama from the hosted app, enter a reachable "
+                        "Ollama-compatible endpoint.",
+                        icon=":material/cloud_off:",
+                    )
+                else:
+                    st.warning(
+                        f"{ollama_error} Enter a reachable Ollama-compatible endpoint.",
+                        icon=":material/power_settings_new:",
+                    )
+                model = ""
+            elif ollama_models:
                 model = st.selectbox(
                     "Model",
                     ollama_models,
