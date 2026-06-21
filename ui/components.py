@@ -49,6 +49,7 @@ def hero(subtitle: str = "") -> None:
         ("gauge", "9-dimension Q1 rubric"),
         ("target", "Venue checklists"),
         ("link", "Citation verification"),
+        ("cpu", "Ollama / local model"),
         ("file-text", "PDF · Word · LaTeX · Markdown"),
     ]
     pill_html = "".join(f'<span class="pill">{ic(n,14)}{esc(t)}</span>' for n, t in pills)
@@ -384,7 +385,7 @@ def landing() -> None:
         ("target", "Venue-aware", "Pick a target venue and get a venue-specific submission checklist, scope fit score, and the rejection risks reviewers will actually raise."),
         ("link", "Citation verification", "Every reference is checked against CrossRef, Semantic Scholar and OpenAlex to flag fabricated, missing, or chimeric (real title / wrong authors) citations."),
         ("fingerprint", "Claim integrity", "Finds unsupported claims, overclaiming, and internal contradictions between abstract, methods, results and conclusions."),
-        ("cpu", "Any model, robust", "Bring your own key — OpenAI, Anthropic, Gemini, Mistral or OpenRouter (incl. free models). Each check is isolated so cheap models don't break the review."),
+        ("cpu", "Cloud or local model", "Bring your own key for OpenAI, Anthropic, Gemini, Mistral or OpenRouter, or run the offline app with Ollama for private local review."),
         ("download", "Useful outputs", "Export a polished report to Word, PDF, Markdown or JSON — ready to hand to co-authors or attach to a revision."),
     ]
     fcells = "".join(

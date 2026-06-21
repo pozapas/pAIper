@@ -79,6 +79,25 @@ PROVIDERS: dict[str, dict] = {
         "free_models_url": "",
         "models": ["mistral-large-latest", "mistral-medium-latest", "mistral-small-latest"],
     },
+    "Ollama / Local": {
+        "key_env": "",
+        "provider_id": "ollama",
+        "note": (
+            "Runs against an Ollama-compatible endpoint. Private when pAIper is "
+            "running on your own machine; hosted Streamlit still receives uploads."
+        ),
+        "signup_url": "https://ollama.com",
+        "free_models_url": "",
+        "requires_key": False,
+        "base_url_env": "OLLAMA_BASE_URL",
+        "models": [
+            "llama3.1:8b",
+            "qwen2.5:7b-instruct",
+            "mistral:7b",
+            "gemma3:12b",
+            "deepseek-r1:8b",
+        ],
+    },
 }
 
 

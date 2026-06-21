@@ -39,7 +39,7 @@ st.set_page_config(
 )
 
 from engine.config import DEPTHS, OCR_METHODS, PROVIDERS, env_var_for
-from engine.engine import ReviewOptions, run_review
+from engine.engine import ReviewOptions, run_citation_audit, run_review
 from engine.llm import LLMClient
 from engine.report import ReviewReport
 from engine.exporters.md_export import report_to_markdown
@@ -74,13 +74,46 @@ def _friendly_review_error(exc: Exception) -> str:
         return "Mistral OCR support is not installed. Install the optional `mistral-ocr-cli` package, or choose Auto/PyMuPDF."
     if "MISTRAL_API_KEY not set" in msg:
         return "Mistral OCR needs a Mistral API key. Paste it in Advanced under PDF parsing engine, or choose Auto/PyMuPDF."
+    if "Ollama is not reachable" in msg:
+        return msg
+    if "Ollama request failed" in msg:
+        return msg
     return msg
+
+
+def _uploaded_text(uploaded_file) -> str:
+    if uploaded_file is None:
+        return ""
+    data = uploaded_file.getvalue()
+    for enc in ("utf-8-sig", "utf-8", "latin-1"):
+        try:
+            return data.decode(enc)
+        except UnicodeDecodeError:
+            continue
+    return data.decode("utf-8", errors="replace")
+
+
+def _provider_requires_key(provider: dict) -> bool:
+    return bool(provider.get("requires_key", True))
 # Sidebar
 # ─────────────────────────────────────────────────────────────────────────────
 
 def render_sidebar() -> dict:
     with st.sidebar:
-        C.sidebar_header("Model & API", "key")
+        C.sidebar_header("Workflow", "sliders")
+        run_mode_label = st.radio(
+            "Run mode",
+            ["Full review", "Citation check only"],
+            index=0,
+            horizontal=True,
+            help=(
+                "Full review scores the manuscript and can also verify citations. "
+                "Citation check only verifies references without running the review rubric."
+            ),
+        )
+        run_mode = "citation_only" if run_mode_label == "Citation check only" else "full"
+
+        C.sidebar_header("Model & Privacy", "key")
 
         with st.expander("Get an API key in 2 minutes", expanded=False):
             st.markdown(
@@ -100,6 +133,11 @@ def render_sidebar() -> dict:
 [Anthropic](https://console.anthropic.com/settings/keys) ·
 [Mistral](https://console.mistral.ai/api-keys)
 
+**Private local option:** install [Ollama](https://ollama.com), run a model on your
+own machine, then choose **Ollama / Local**. On the hosted Streamlit app, `localhost`
+belongs to the cloud server, not your laptop; use the offline app for real local privacy
+or provide a reachable Ollama-compatible endpoint.
+
 *Your key stays in this browser session only. It is sent solely to the provider you
 choose (and to CrossRef / OpenAlex / Semantic Scholar for citation checks). It is never
 stored or logged by this app. Reviews use tokens billed to your own account.*
@@ -110,48 +148,84 @@ stored or logged by this app. Reviews use tokens billed to your own account.*
         prov = PROVIDERS[provider_name]
         st.caption(prov["note"])
 
-        api_key = st.text_input(
-            f"{provider_name} API key",
-            type="password",
-            value=os.environ.get(prov["key_env"], ""),
-            placeholder="paste your key…",
-        )
-        st.markdown(f"[Get a {provider_name} key]({prov['signup_url']})")
+        api_key = ""
+        base_url = ""
+        if _provider_requires_key(prov):
+            api_key = st.text_input(
+                f"{provider_name} API key",
+                type="password",
+                value=os.environ.get(prov["key_env"], ""),
+                placeholder="paste your key...",
+            )
+            st.markdown(f"[Get a {provider_name} key]({prov['signup_url']})")
+        else:
+            base_url = st.text_input(
+                "Ollama endpoint",
+                value=os.environ.get(prov.get("base_url_env", "OLLAMA_BASE_URL"), "http://localhost:11434"),
+                placeholder="http://localhost:11434",
+                help=(
+                    "Offline app: keep the default. Hosted app: use a reachable "
+                    "Ollama-compatible HTTPS endpoint; the cloud server cannot see your laptop localhost."
+                ),
+            )
+            st.markdown("[Install Ollama](https://ollama.com)")
+            st.info(
+                "For private paper review, run pAIper locally with Ollama. "
+                "On paiper.streamlit.app, uploaded files still pass through Streamlit Cloud.",
+                icon=":material/privacy_tip:",
+            )
 
         model = st.selectbox("Model", prov["models"])
         custom_model = st.text_input(
             "Custom model ID (optional)",
-            placeholder="e.g. anthropic/claude-opus-4.7",
+            placeholder="e.g. llama3.1:8b or anthropic/claude-opus-4.7",
             help="Overrides the dropdown. Use the provider's exact model ID.",
         )
 
-        C.sidebar_header("Review depth", "layers")
-        depth = st.radio(
-            "Depth",
-            list(DEPTHS.keys()),
-            format_func=lambda k: DEPTHS[k].label,
-            index=list(DEPTHS.keys()).index("standard"),
-            label_visibility="collapsed",
-        )
-        st.caption(DEPTHS[depth].desc)
+        if run_mode == "full":
+            C.sidebar_header("Review depth", "layers")
+            depth = st.radio(
+                "Depth",
+                list(DEPTHS.keys()),
+                format_func=lambda k: DEPTHS[k].label,
+                index=list(DEPTHS.keys()).index("standard"),
+                label_visibility="collapsed",
+            )
+            st.caption(DEPTHS[depth].desc)
 
-        C.sidebar_header("Target venue (optional)", "target")
-        venue_opts = list_venue_options()
-        venue_id = st.selectbox(
-            "Venue",
-            [v[0] for v in venue_opts],
-            format_func=lambda vid: dict(venue_opts).get(vid, vid),
-            label_visibility="collapsed",
-            help="Get a venue-specific submission checklist and rejection-risk analysis.",
-        )
+            C.sidebar_header("Target venue (optional)", "target")
+            venue_opts = list_venue_options()
+            venue_id = st.selectbox(
+                "Venue",
+                [v[0] for v in venue_opts],
+                format_func=lambda vid: dict(venue_opts).get(vid, vid),
+                label_visibility="collapsed",
+                help="Get a venue-specific submission checklist and rejection-risk analysis.",
+            )
+        else:
+            depth = "standard"
+            venue_id = ""
+            C.sidebar_header("Citation audit", "link")
+            st.caption(
+                "Skips the review rubric and verifies parsed references only. "
+                "Upload BibTeX to avoid model-based reference extraction."
+            )
 
         C.sidebar_header("Options", "sliders")
-        check_citations = st.toggle(
-            "Verify citations online",
-            value=False,
-            help="Check each reference against CrossRef, Semantic Scholar and OpenAlex to "
-                 "catch fabricated, missing, or chimeric citations. Requires internet; no extra key.",
-        )
+        if run_mode == "citation_only":
+            check_citations = st.toggle(
+                "Verify citations online",
+                value=True,
+                disabled=True,
+                help="Citation-only mode always verifies references against public scholarly indexes.",
+            )
+        else:
+            check_citations = st.toggle(
+                "Verify citations online",
+                value=False,
+                help="Check each reference against CrossRef, Semantic Scholar and OpenAlex to "
+                     "catch fabricated, missing, or chimeric citations. Requires internet; no extra key.",
+            )
 
         with st.expander("Advanced", expanded=False):
             ocr_method = st.selectbox(
@@ -190,7 +264,9 @@ stored or logged by this app. Reviews use tokens billed to your own account.*
             "provider_id": prov["provider_id"],
             "provider_name": provider_name,
             "api_key": api_key.strip(),
+            "base_url": base_url.strip(),
             "model": (custom_model.strip() or model),
+            "run_mode": run_mode,
             "depth": depth,
             "venue_id": venue_id,
             "check_citations": check_citations,
@@ -206,7 +282,102 @@ stored or logged by this app. Reviews use tokens billed to your own account.*
 # Results
 # ─────────────────────────────────────────────────────────────────────────────
 
+def _render_citations(r: ReviewReport) -> None:
+    cc = r.citation_check
+    if not cc or not cc.enabled:
+        st.info("Citation verification was off. Enable “Verify citations online” in the "
+                "sidebar to check references against CrossRef, Semantic Scholar and OpenAlex.")
+    elif cc.n_refs == 0:
+        st.warning(cc.note or "No references could be extracted from this document.")
+    else:
+        m1, m2, m3 = st.columns(3)
+        m1.metric("References", cc.n_refs)
+        m2.metric("Verified", cc.n_verified)
+        m3.metric("Need attention", cc.n_suspicious)
+        if cc.note:
+            st.caption(cc.note)
+        show_only = st.checkbox("Show only references needing attention", value=False)
+        for c in cc.items:
+            if show_only and c.status == "VERIFIED":
+                continue
+            label = c.title or c.raw[:160]
+            if c.year:
+                label += f"  ({c.year})"
+            C.checklist_row(label, c.status, c.note, link=c.match_url)
+
+
+def _render_export(r: ReviewReport) -> None:
+    slug = "".join(ch if ch.isalnum() else "-" for ch in (r.title or "review").lower())[:50]
+    md = report_to_markdown(r)
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        st.download_button("Word (.docx)", report_to_docx(r),
+                           file_name=f"{slug}-review.docx",
+                           mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                           use_container_width=True)
+    with c2:
+        st.download_button("Markdown", md, file_name=f"{slug}-review.md",
+                           mime="text/markdown", use_container_width=True)
+    with c3:
+        st.download_button("JSON", json.dumps(r.to_dict(), indent=2, ensure_ascii=False),
+                           file_name=f"{slug}-review.json", mime="application/json",
+                           use_container_width=True)
+    with c4:
+        try:
+            from engine.exporters.pdf_export import report_to_pdf
+            st.download_button("PDF", report_to_pdf(r), file_name=f"{slug}-review.pdf",
+                               mime="application/pdf", use_container_width=True)
+        except Exception:
+            st.button("PDF (use Word → Save as PDF)", disabled=True, use_container_width=True)
+    st.markdown(
+        f"""
+        <div style="display:inline-flex;align-items:center;gap:.42rem;margin:.72rem 0 .2rem;
+                    color:#9aa1a9;font-size:.78rem;font-weight:800;">
+          <img src="{GITHUB_ICON_URL}" alt="GitHub" width="14" height="14" />
+          <span>{GENERATED_BY}</span>
+          <span style="color:#424952">&middot;</span>
+          <a href="{PAIPER_REPO_URL}" target="_blank" rel="noopener noreferrer"
+             style="color:#ff9f43;text-decoration:none;">{PAIPER_REPO_LABEL}</a>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.markdown("---")
+    with st.expander("Preview Markdown report"):
+        st.markdown(md)
+
+
 def render_results(r: ReviewReport) -> None:
+    if r.depth == "citation-only":
+        cc = r.citation_check
+        verified = cc.n_verified if cc else 0
+        total = cc.n_refs if cc else 0
+        flagged = cc.n_suspicious if cc else 0
+        note = (cc.note if cc and cc.note else r.headline_summary) or ""
+        st.markdown(
+            f"""
+<div class="citation-audit-banner">
+  <div>
+    <span>Citation audit</span>
+    <h2>{C.esc(r.title or "Reference check")}</h2>
+    <p>{C.esc(note)}</p>
+  </div>
+  <div class="citation-audit-metrics">
+    <strong>{verified}/{total}</strong>
+    <small>verified</small>
+    <strong>{flagged}</strong>
+    <small>need attention</small>
+  </div>
+</div>""",
+            unsafe_allow_html=True,
+        )
+        tabs = st.tabs(["Citations", "Export"])
+        with tabs[0]:
+            _render_citations(r)
+        with tabs[1]:
+            _render_export(r)
+        return
+
     C.recommendation_banner(r)
     C.stat_chips(r)
 
@@ -431,14 +602,47 @@ def main() -> None:
         label_visibility="collapsed",
         help="PDF, Word (.docx), LaTeX (.tex), Markdown (.md), or plain text (.txt).",
     )
+    bib_uploaded = st.file_uploader(
+        "Bibliography file for citation checks",
+        type=["bib", "bibtex"],
+        help=(
+            "Recommended for LaTeX manuscripts and citation-only audits. "
+            "When provided, pAIper verifies BibTeX entries directly without sending them to a model."
+        ),
+        key="bib_upload",
+    )
+    bibliography_text = _uploaded_text(bib_uploaded).strip()
+    uploaded_ext = Path(uploaded.name).suffix.lower() if uploaded is not None else ""
+    citation_requested = cfg["run_mode"] == "citation_only" or cfg["check_citations"]
+    if uploaded_ext == ".tex" and citation_requested and not bibliography_text:
+        st.warning(
+            "LaTeX files usually contain citation keys, not full reference metadata. "
+            "Upload the matching .bib/.bibtex file so pAIper can verify citations accurately.",
+            icon=":material/library_books:",
+        )
+    elif bibliography_text:
+        st.success(
+            f"Bibliography attached: {bib_uploaded.name}. Citation checks will use these BibTeX entries.",
+            icon=":material/task_alt:",
+        )
     arxiv_url = st.text_input("…or paste an arXiv URL", placeholder="https://arxiv.org/abs/2401.00001")
 
-    run = st.button("Run Review", type="primary", use_container_width=False,
-                    disabled=not (uploaded or arxiv_url.strip()))
+    run_label = "Run Citation Check" if cfg["run_mode"] == "citation_only" else "Run Review"
+    can_run = bool(uploaded or arxiv_url.strip() or (cfg["run_mode"] == "citation_only" and bibliography_text))
+    run = st.button(run_label, type="primary", use_container_width=False, disabled=not can_run)
 
     if run:
-        if not cfg["api_key"]:
+        citation_only = cfg["run_mode"] == "citation_only"
+        needs_llm = not (citation_only and bibliography_text)
+        prov = PROVIDERS[cfg["provider_name"]]
+        if needs_llm and _provider_requires_key(prov) and not cfg["api_key"]:
             st.error(f"Please enter your {cfg['provider_name']} API key in the sidebar.")
+            return
+        if needs_llm and cfg["provider_id"] == "ollama" and not cfg["base_url"]:
+            st.error("Please enter an Ollama endpoint, for example http://localhost:11434.")
+            return
+        if uploaded_ext == ".tex" and citation_requested and not bibliography_text:
+            st.error("Please upload the matching .bib or .bibtex file before running citation verification.")
             return
 
         if uploaded is not None and Path(uploaded.name).suffix.lower() == ".pdf":
@@ -462,16 +666,19 @@ def main() -> None:
             title_override = Path(uploaded.name).stem
             display_name = uploaded.name
         else:
-            source = arxiv_url.strip()
-            display_name = source
+            source = arxiv_url.strip() or None
+            display_name = source or (bib_uploaded.name if bib_uploaded is not None else "citation audit")
 
-        llm = LLMClient(
-            provider_id=cfg["provider_id"],
-            model=cfg["model"],
-            api_key=cfg["api_key"],
-            reasoning_effort=cfg["reasoning"],
-            default_max_tokens=DEPTHS[cfg["depth"]].max_output_tokens,
-        )
+        llm = None
+        if needs_llm:
+            llm = LLMClient(
+                provider_id=cfg["provider_id"],
+                model=cfg["model"],
+                api_key=cfg["api_key"],
+                base_url=cfg["base_url"],
+                reasoning_effort=cfg["reasoning"],
+                default_max_tokens=DEPTHS[cfg["depth"]].max_output_tokens,
+            )
         options = ReviewOptions(
             depth=cfg["depth"],
             venue_id=cfg["venue_id"],
@@ -479,6 +686,7 @@ def main() -> None:
             max_citations=cfg["max_citations"],
             concurrent=cfg["concurrent"],
             ocr_method=cfg["ocr_method"],
+            bibliography_text=bibliography_text,
         )
 
         bar = st.progress(0.0)
@@ -490,8 +698,15 @@ def main() -> None:
                             unsafe_allow_html=True)
 
         try:
-            report = run_review(source, llm, options,
-                                title_override=title_override, progress=progress)
+            if citation_only:
+                report = run_citation_audit(source, llm, options,
+                                            title_override=title_override, progress=progress)
+            else:
+                if llm is None:
+                    st.error("Full review needs a model provider.")
+                    return
+                report = run_review(source, llm, options,
+                                    title_override=title_override, progress=progress)
             st.session_state.report = report
             st.session_state.reviewed_name = display_name
             bar.empty()

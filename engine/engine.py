@@ -40,6 +40,7 @@ class ReviewOptions:
     max_citations: int = 40
     concurrent: bool = True
     ocr_method: str = "auto"
+    bibliography_text: str = ""
 
 
 ProgressCB = Callable[[float, str], None]
@@ -105,6 +106,12 @@ def _fallback_action_items(dims: list[DimensionResult]) -> list[ActionItem]:
     return items[:10]
 
 
+def _apply_bibliography(paper: ParsedPaper, bibliography_text: str) -> None:
+    bib = (bibliography_text or "").strip()
+    if bib:
+        paper.references_block = bib
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Main entry
 # ─────────────────────────────────────────────────────────────────────────────
@@ -121,6 +128,7 @@ def run_review(
 
     progress(0.03, "Parsing document…")
     paper = parse_paper(file_path, ocr=options.ocr_method)
+    _apply_bibliography(paper, options.bibliography_text)
     if title_override:
         paper.title = title_override
 
@@ -243,4 +251,63 @@ def run_review(
     report.cost_usd = round(llm.usage.cost_usd, 4) if llm.usage.cost_known else None
 
     progress(1.0, "Review complete ✓")
+    return report
+
+
+def run_citation_audit(
+    file_path: str | Path | None,
+    llm: LLMClient | None,
+    options: ReviewOptions,
+    *,
+    title_override: str = "",
+    progress: ProgressCB = _noop,
+) -> ReviewReport:
+    progress(0.05, "Preparing citation audit...")
+
+    if file_path is not None:
+        paper = parse_paper(file_path, ocr=options.ocr_method)
+    else:
+        paper = ParsedPaper(
+            title=title_override or "BibTeX citation audit",
+            full_text=options.bibliography_text,
+            was_ocr=False,
+            parse_engine="bibtex",
+            references_block=options.bibliography_text,
+        )
+    _apply_bibliography(paper, options.bibliography_text)
+    if title_override:
+        paper.title = title_override
+
+    report = ReviewReport(
+        title=paper.title,
+        model=llm.model if llm else "No model used",
+        provider=llm.provider_id if llm else "bibtex-direct",
+        depth="citation-only",
+        venue_id="",
+        parse_engine=paper.parse_engine,
+        was_ocr=paper.was_ocr,
+        paragraphs=paper.paragraphs,
+        recommendation="Citation Audit",
+        headline_summary=(
+            "Citation-only audit. pAIper verified the parsed references against "
+            "CrossRef, Semantic Scholar, and OpenAlex without running a manuscript review."
+        ),
+    )
+
+    try:
+        from .citations import check_citations
+        progress(0.35, "Verifying references against scholarly databases...")
+        report.citation_check = check_citations(
+            paper, llm, max_refs=options.max_citations
+        )
+    except Exception as exc:
+        report.warnings.append(f"Citation check failed: {exc}")
+
+    if llm:
+        report.prompt_tokens = llm.usage.prompt_tokens
+        report.completion_tokens = llm.usage.completion_tokens
+        report.n_calls = llm.usage.calls
+        report.cost_usd = round(llm.usage.cost_usd, 4) if llm.usage.cost_known else None
+
+    progress(1.0, "Citation audit complete")
     return report

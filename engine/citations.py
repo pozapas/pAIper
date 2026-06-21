@@ -271,6 +271,111 @@ _REF_SYS = ("You extract bibliographic references into structured JSON. Output O
             "array. Never invent references; only parse what is present.")
 
 
+def _split_bibtex_entries(text: str) -> list[str]:
+    entries: list[str] = []
+    i = 0
+    n = len(text)
+    while i < n:
+        at = text.find("@", i)
+        if at < 0:
+            break
+        brace = text.find("{", at)
+        if brace < 0:
+            break
+        kind = text[at + 1:brace].strip().lower()
+        if not kind or kind.startswith("comment") or kind.startswith("preamble"):
+            i = brace + 1
+            continue
+        depth = 0
+        j = brace
+        while j < n:
+            ch = text[j]
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    entries.append(text[at:j + 1])
+                    i = j + 1
+                    break
+            j += 1
+        else:
+            break
+    return entries
+
+
+def _bib_field(entry: str, name: str) -> str:
+    m = re.search(rf"(?is)\b{re.escape(name)}\s*=", entry)
+    if not m:
+        return ""
+    i = m.end()
+    while i < len(entry) and entry[i].isspace():
+        i += 1
+    if i >= len(entry):
+        return ""
+    if entry[i] == "{":
+        depth = 1
+        j = i + 1
+        while j < len(entry):
+            if entry[j] == "{":
+                depth += 1
+            elif entry[j] == "}":
+                depth -= 1
+                if depth == 0:
+                    return entry[i + 1:j]
+            j += 1
+        return entry[i + 1:].strip()
+    if entry[i] == '"':
+        j = i + 1
+        escaped = False
+        while j < len(entry):
+            if entry[j] == '"' and not escaped:
+                return entry[i + 1:j]
+            escaped = entry[j] == "\\" and not escaped
+            if entry[j] != "\\":
+                escaped = False
+            j += 1
+        return entry[i + 1:].strip()
+    j = i
+    while j < len(entry) and entry[j] not in ",\n\r":
+        j += 1
+    return entry[i:j].strip()
+
+
+def _clean_bibtex_value(value: str) -> str:
+    value = value.replace("{", "").replace("}", "")
+    value = re.sub(r"\\[a-zA-Z]+\*?(?:\[[^\]]*\])?(?:\{([^{}]*)\})?", r"\1", value)
+    value = value.replace("\\&", "&").replace("\\_", "_").replace("~", " ")
+    value = re.sub(r"\s+", " ", value)
+    return value.strip(" ,;")
+
+
+def _parse_bibtex_references(block: str, max_refs: int) -> list[dict]:
+    entries = _split_bibtex_entries(block)
+    refs: list[dict] = []
+    for entry in entries[:max_refs]:
+        title = _clean_bibtex_value(_bib_field(entry, "title"))
+        authors = _clean_bibtex_value(_bib_field(entry, "author") or _bib_field(entry, "editor"))
+        authors = re.sub(r"\s+and\s+", ", ", authors, flags=re.I)
+        year_raw = _bib_field(entry, "year") or _bib_field(entry, "date")
+        year_m = re.search(r"(19|20)\d{2}", year_raw)
+        doi = _clean_bibtex_value(_bib_field(entry, "doi")).replace("https://doi.org/", "")
+        eprint = _clean_bibtex_value(_bib_field(entry, "eprint"))
+        archive = _clean_bibtex_value(_bib_field(entry, "archivePrefix") or _bib_field(entry, "eprinttype"))
+        arxiv = eprint if eprint and archive.lower() in ("arxiv", "") else ""
+        if not (title or doi or arxiv):
+            continue
+        refs.append({
+            "raw": entry.strip(),
+            "title": title,
+            "authors": authors,
+            "year": year_m.group(0) if year_m else "",
+            "doi": doi,
+            "arxiv": arxiv,
+        })
+    return refs
+
+
 def _parse_references(block: str, llm: LLMClient, max_refs: int) -> list[dict]:
     if not block.strip():
         return []
@@ -405,11 +510,21 @@ def abs_int_diff(a: str, b: str) -> int:
 # Public entry
 # ─────────────────────────────────────────────────────────────────────────────
 
-def check_citations(paper: ParsedPaper, llm: LLMClient, *, max_refs: int = 40,
+def check_citations(paper: ParsedPaper, llm: LLMClient | None, *, max_refs: int = 40,
                     workers: int = 4) -> CitationCheck:
     cc = CitationCheck(enabled=True)
     block = _find_reference_block(paper)
-    refs = _parse_references(block, llm, max_refs)
+    refs = _parse_bibtex_references(block, max_refs)
+    used_bibtex = bool(refs)
+    if not refs and llm is None and block.strip():
+        cc.note = (
+            "A reference section was found, but citation-only mode can parse references "
+            "without a model only from BibTeX. Upload a .bib/.bibtex file, or select a "
+            "model provider so pAIper can extract structured references."
+        )
+        return cc
+    if not refs and llm is not None:
+        refs = _parse_references(block, llm, max_refs)
     if not refs:
         cc.note = ("No reference list could be extracted. The paper may omit references, "
                    "or the parser could not isolate them.")
@@ -435,4 +550,6 @@ def check_citations(paper: ParsedPaper, llm: LLMClient, *, max_refs: int = 40,
         )
     else:
         cc.note = "All parsed references were matched to indexed records."
+    if used_bibtex:
+        cc.note += " References were parsed from the uploaded BibTeX file."
     return cc

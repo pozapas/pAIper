@@ -15,6 +15,8 @@ from __future__ import annotations
 import json
 import os
 import re
+import urllib.error
+import urllib.request
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -130,9 +132,15 @@ class LLMClient:
     reasoning_effort: str | None = None
     temperature: float = 0.0
     default_max_tokens: int = 6144
+    base_url: str = ""
     usage: Usage = field(default_factory=Usage)
 
     def __post_init__(self) -> None:
+        if self.provider_id == "ollama":
+            if self.base_url:
+                os.environ["OLLAMA_BASE_URL"] = self.base_url
+            os.environ["REVIEW_PROVIDER"] = self.provider_id
+            return
         # The underlying reviewer.client reads keys from env vars.
         if self.api_key:
             os.environ[env_var_for(self.provider_id)] = self.api_key
@@ -151,6 +159,12 @@ class LLMClient:
         if system:
             messages.append({"role": "system", "content": system})
         messages.append({"role": "user", "content": user})
+        if self.provider_id == "ollama":
+            return self._complete_ollama(
+                messages,
+                max_tokens=max_tokens or self.default_max_tokens,
+                temperature=self.temperature if temperature is None else temperature,
+            )
         text, usage = _chat(
             messages,
             model=self.model,
@@ -165,6 +179,48 @@ class LLMClient:
             usage.get("completion_tokens", 0),
         )
         return text or ""
+
+    def _complete_ollama(
+        self,
+        messages: list[dict],
+        *,
+        max_tokens: int,
+        temperature: float,
+    ) -> str:
+        base_url = (self.base_url or os.environ.get("OLLAMA_BASE_URL") or "http://localhost:11434").rstrip("/")
+        payload = {
+            "model": self.model,
+            "messages": messages,
+            "stream": False,
+            "options": {
+                "temperature": temperature,
+                "num_predict": max_tokens,
+            },
+        }
+        body = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(
+            f"{base_url}/api/chat",
+            data=body,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=300) as resp:
+                data = json.loads(resp.read().decode("utf-8", errors="replace"))
+        except urllib.error.HTTPError as exc:
+            details = exc.read().decode("utf-8", errors="replace")[:500]
+            raise RuntimeError(f"Ollama request failed ({exc.code}): {details}") from exc
+        except Exception as exc:
+            raise RuntimeError(
+                f"Ollama is not reachable at {base_url}. Start Ollama locally, "
+                "or use a reachable Ollama-compatible endpoint."
+            ) from exc
+
+        prompt_tokens = int(data.get("prompt_eval_count") or 0)
+        completion_tokens = int(data.get("eval_count") or 0)
+        self.usage.add(self.model, prompt_tokens, completion_tokens)
+        message = data.get("message") or {}
+        return str(message.get("content") or data.get("response") or "")
 
     # ── JSON call with repair retry ───────────────────────────────────────────
     def json(
