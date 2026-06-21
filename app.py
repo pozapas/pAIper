@@ -147,11 +147,39 @@ def render_sidebar() -> dict:
         )
         run_mode = "citation_only" if run_mode_label == "Citation check only" else "full"
 
-        C.sidebar_header("Model & Privacy", "key")
+        use_ai_reference_extraction = False
+        if run_mode == "citation_only":
+            C.sidebar_header("Citation audit", "link")
+            st.caption(
+                "BibTeX citation audits do not need an AI API key. Upload a .bib/.bibtex "
+                "file and pAIper verifies references directly against public scholarly indexes."
+            )
+            use_ai_reference_extraction = st.toggle(
+                "Use AI to extract references from manuscript",
+                value=False,
+                help=(
+                    "Only needed when you do not have a BibTeX file. This sends manuscript "
+                    "reference text to the selected model so pAIper can structure references before verification."
+                ),
+            )
 
-        with st.expander("Get an API key in 2 minutes", expanded=False):
-            st.markdown(
-                """
+        show_model_controls = run_mode == "full" or use_ai_reference_extraction
+        provider_name = list(PROVIDERS.keys())[0]
+        prov = PROVIDERS[provider_name]
+        api_key = ""
+        base_url = ""
+        custom_model = ""
+        model = ""
+
+        if show_model_controls:
+            C.sidebar_header(
+                "Model & Privacy" if run_mode == "full" else "AI reference extraction",
+                "key",
+            )
+
+            with st.expander("Get an API key in 2 minutes", expanded=False):
+                st.markdown(
+                    """
 **Free options first:**
 
 **Google Gemini — free tier (easiest free):**
@@ -176,76 +204,78 @@ or provide a reachable Ollama-compatible endpoint.
 choose (and to CrossRef / OpenAlex / Semantic Scholar for citation checks). It is never
 stored or logged by this app. Reviews use tokens billed to your own account.*
 """
-            )
-
-        provider_name = st.selectbox("Provider", list(PROVIDERS.keys()), index=0)
-        prov = PROVIDERS[provider_name]
-        st.caption(prov["note"])
-
-        api_key = ""
-        base_url = ""
-        custom_model = ""
-        if _provider_requires_key(prov):
-            api_key = st.text_input(
-                f"{provider_name} API key",
-                type="password",
-                value=os.environ.get(prov["key_env"], ""),
-                placeholder="paste your key...",
-            )
-            st.markdown(f"[Get a {provider_name} key]({prov['signup_url']})")
-            model = st.selectbox("Model", prov["models"])
-            custom_model = st.text_input(
-                "Custom model ID (optional)",
-                placeholder="e.g. anthropic/claude-opus-4.7",
-                help="Overrides the dropdown. Use the provider's exact model ID.",
-            )
-        else:
-            base_url = st.text_input(
-                "Ollama endpoint",
-                value=os.environ.get(prov.get("base_url_env", "OLLAMA_BASE_URL"), "http://localhost:11434"),
-                placeholder="http://localhost:11434",
-                help=(
-                    "Offline app: keep the default. Hosted app: use a reachable "
-                    "Ollama-compatible HTTPS endpoint; the cloud server cannot see localhost on your device."
-                ),
-            )
-            st.markdown("[Install Ollama](https://ollama.com)")
-            st.info(
-                "For private paper review, run pAIper locally with Ollama. "
-                "On paiper.streamlit.app, uploaded files still pass through Streamlit Cloud.",
-                icon=":material/privacy_tip:",
-            )
-            ollama_models, ollama_error = _fetch_ollama_models(base_url)
-            if ollama_error:
-                if _is_loopback_url(base_url):
-                    st.info(
-                        "pAIper cannot reach Ollama at `localhost`. If you are using "
-                        "`paiper.streamlit.app`, this is expected because the cloud app cannot "
-                        "see Ollama on your device. For private local models, run pAIper locally "
-                        "and start Ollama. To use Ollama from the hosted app, enter a reachable "
-                        "Ollama-compatible endpoint.",
-                        icon=":material/cloud_off:",
-                    )
-                else:
-                    st.warning(
-                        f"{ollama_error} Enter a reachable Ollama-compatible endpoint.",
-                        icon=":material/power_settings_new:",
-                    )
-                model = ""
-            elif ollama_models:
-                model = st.selectbox(
-                    "Model",
-                    ollama_models,
-                    help="Loaded from your Ollama model registry via /api/tags.",
                 )
-                st.caption(f"{len(ollama_models)} installed Ollama model(s) detected.")
+
+            provider_name = st.selectbox("Provider", list(PROVIDERS.keys()), index=0)
+            prov = PROVIDERS[provider_name]
+            st.caption(prov["note"])
+
+            if _provider_requires_key(prov):
+                api_key = st.text_input(
+                    f"{provider_name} API key",
+                    type="password",
+                    value=os.environ.get(prov["key_env"], ""),
+                    placeholder="paste your key...",
+                )
+                st.markdown(f"[Get a {provider_name} key]({prov['signup_url']})")
+                model = st.selectbox("Model", prov["models"])
+                custom_model = st.text_input(
+                    "Custom model ID (optional)",
+                    placeholder="e.g. anthropic/claude-opus-4.7",
+                    help="Overrides the dropdown. Use the provider's exact model ID.",
+                )
             else:
-                model = ""
-                st.warning(
-                    "No Ollama models found. First install a model, for example: "
-                    "`ollama pull llama3.1:8b`, then refresh this app.",
-                    icon=":material/download:",
+                base_url = st.text_input(
+                    "Ollama endpoint",
+                    value=os.environ.get(prov.get("base_url_env", "OLLAMA_BASE_URL"), "http://localhost:11434"),
+                    placeholder="http://localhost:11434",
+                    help=(
+                        "Offline app: keep the default. Hosted app: use a reachable "
+                        "Ollama-compatible HTTPS endpoint; the cloud server cannot see localhost on your device."
+                    ),
                 )
+                st.markdown("[Install Ollama](https://ollama.com)")
+                st.info(
+                    "For private paper review, run pAIper locally with Ollama. "
+                    "On paiper.streamlit.app, uploaded files still pass through Streamlit Cloud.",
+                    icon=":material/privacy_tip:",
+                )
+                ollama_models, ollama_error = _fetch_ollama_models(base_url)
+                if ollama_error:
+                    if _is_loopback_url(base_url):
+                        st.info(
+                            "pAIper cannot reach Ollama at `localhost`. If you are using "
+                            "`paiper.streamlit.app`, this is expected because the cloud app cannot "
+                            "see Ollama on your device. For private local models, run pAIper locally "
+                            "and start Ollama. To use Ollama from the hosted app, enter a reachable "
+                            "Ollama-compatible endpoint.",
+                            icon=":material/cloud_off:",
+                        )
+                    else:
+                        st.warning(
+                            f"{ollama_error} Enter a reachable Ollama-compatible endpoint.",
+                            icon=":material/power_settings_new:",
+                        )
+                    model = ""
+                elif ollama_models:
+                    model = st.selectbox(
+                        "Model",
+                        ollama_models,
+                        help="Loaded from your Ollama model registry via /api/tags.",
+                    )
+                    st.caption(f"{len(ollama_models)} installed Ollama model(s) detected.")
+                else:
+                    model = ""
+                    st.warning(
+                        "No Ollama models found. First install a model, for example: "
+                        "`ollama pull llama3.1:8b`, then refresh this app.",
+                        icon=":material/download:",
+                    )
+        elif run_mode == "citation_only":
+            st.info(
+                "No AI model is needed for BibTeX citation checks.",
+                icon=":material/verified:",
+            )
 
         if run_mode == "full":
             C.sidebar_header("Review depth", "layers")
@@ -270,11 +300,6 @@ stored or logged by this app. Reviews use tokens billed to your own account.*
         else:
             depth = "standard"
             venue_id = ""
-            C.sidebar_header("Citation audit", "link")
-            st.caption(
-                "Skips the review rubric and verifies parsed references only. "
-                "Upload BibTeX to avoid model-based reference extraction."
-            )
 
         C.sidebar_header("Options", "sliders")
         if run_mode == "citation_only":
@@ -317,12 +342,18 @@ stored or logged by this app. Reviews use tokens billed to your own account.*
                 )
                 if ocr_info.get("key_url"):
                     st.markdown(f"[Get a Mistral OCR key]({ocr_info['key_url']})")
-            reasoning = st.selectbox(
-                "Reasoning effort", ["(none)", "low", "medium", "high"], index=0,
-                help="For models that support extended thinking (o-series, Claude, Gemini).",
-            )
-            concurrent = st.checkbox("Run dimensions in parallel", value=True,
-                                     help="Faster. Turn off if your provider rate-limits.")
+            if show_model_controls:
+                reasoning = st.selectbox(
+                    "Reasoning effort", ["(none)", "low", "medium", "high"], index=0,
+                    help="For models that support extended thinking (o-series, Claude, Gemini).",
+                )
+            else:
+                reasoning = "(none)"
+            if run_mode == "full":
+                concurrent = st.checkbox("Run dimensions in parallel", value=True,
+                                         help="Faster. Turn off if your provider rate-limits.")
+            else:
+                concurrent = False
             max_citations = st.number_input("Max references to verify", 5, 200, 40, step=5)
 
         return {
@@ -335,6 +366,7 @@ stored or logged by this app. Reviews use tokens billed to your own account.*
             "depth": depth,
             "venue_id": venue_id,
             "check_citations": check_citations,
+            "use_ai_reference_extraction": use_ai_reference_extraction,
             "ocr_method": ocr_method,
             "ocr_api_key": ocr_api_key.strip(),
             "reasoning": None if reasoning == "(none)" else reasoning,
@@ -698,7 +730,16 @@ def main() -> None:
 
     if run:
         citation_only = cfg["run_mode"] == "citation_only"
-        needs_llm = not (citation_only and bibliography_text)
+        if citation_only and not bibliography_text and not cfg["use_ai_reference_extraction"]:
+            st.error(
+                "Citation-only mode does not need an AI API key when you upload a .bib/.bibtex file. "
+                "Upload the bibliography file, or enable AI reference extraction in the sidebar "
+                "if you only have a manuscript/reference list."
+            )
+            return
+        needs_llm = (not citation_only) or (
+            citation_only and cfg["use_ai_reference_extraction"] and not bibliography_text
+        )
         prov = PROVIDERS[cfg["provider_name"]]
         if needs_llm and _provider_requires_key(prov) and not cfg["api_key"]:
             st.error(f"Please enter your {cfg['provider_name']} API key in the sidebar.")
