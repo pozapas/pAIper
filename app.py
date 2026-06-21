@@ -17,6 +17,8 @@ import importlib.util
 import json
 import os
 import tempfile
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 import streamlit as st
@@ -95,6 +97,32 @@ def _uploaded_text(uploaded_file) -> str:
 
 def _provider_requires_key(provider: dict) -> bool:
     return bool(provider.get("requires_key", True))
+
+
+def _normalize_ollama_url(base_url: str) -> str:
+    url = (base_url or "http://localhost:11434").strip()
+    if url and "://" not in url:
+        url = "http://" + url
+    return url.rstrip("/")
+
+
+def _fetch_ollama_models(base_url: str, timeout: float = 2.5) -> tuple[list[str], str]:
+    url = _normalize_ollama_url(base_url)
+    req = urllib.request.Request(f"{url}/api/tags", method="GET")
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            data = json.loads(resp.read().decode("utf-8", errors="replace"))
+    except urllib.error.HTTPError as exc:
+        return [], f"Ollama returned HTTP {exc.code} at {url}."
+    except Exception:
+        return [], f"Ollama is not reachable at {url}."
+
+    models = []
+    for item in data.get("models", []):
+        name = str(item.get("name", "")).strip()
+        if name:
+            models.append(name)
+    return list(dict.fromkeys(models)), ""
 # Sidebar
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -150,6 +178,7 @@ stored or logged by this app. Reviews use tokens billed to your own account.*
 
         api_key = ""
         base_url = ""
+        custom_model = ""
         if _provider_requires_key(prov):
             api_key = st.text_input(
                 f"{provider_name} API key",
@@ -158,6 +187,12 @@ stored or logged by this app. Reviews use tokens billed to your own account.*
                 placeholder="paste your key...",
             )
             st.markdown(f"[Get a {provider_name} key]({prov['signup_url']})")
+            model = st.selectbox("Model", prov["models"])
+            custom_model = st.text_input(
+                "Custom model ID (optional)",
+                placeholder="e.g. anthropic/claude-opus-4.7",
+                help="Overrides the dropdown. Use the provider's exact model ID.",
+            )
         else:
             base_url = st.text_input(
                 "Ollama endpoint",
@@ -174,13 +209,26 @@ stored or logged by this app. Reviews use tokens billed to your own account.*
                 "On paiper.streamlit.app, uploaded files still pass through Streamlit Cloud.",
                 icon=":material/privacy_tip:",
             )
-
-        model = st.selectbox("Model", prov["models"])
-        custom_model = st.text_input(
-            "Custom model ID (optional)",
-            placeholder="e.g. llama3.1:8b or anthropic/claude-opus-4.7",
-            help="Overrides the dropdown. Use the provider's exact model ID.",
-        )
+            ollama_models, ollama_error = _fetch_ollama_models(base_url)
+            if ollama_error:
+                st.warning(
+                    f"{ollama_error} Start Ollama locally, or enter a reachable Ollama-compatible endpoint.",
+                    icon=":material/power_settings_new:",
+                )
+            if ollama_models:
+                model = st.selectbox(
+                    "Model",
+                    ollama_models,
+                    help="Loaded from your Ollama model registry via /api/tags.",
+                )
+                st.caption(f"{len(ollama_models)} installed Ollama model(s) detected.")
+            else:
+                model = ""
+                st.warning(
+                    "No Ollama models found. First install a model, for example: "
+                    "`ollama pull llama3.1:8b`, then refresh this app.",
+                    icon=":material/download:",
+                )
 
         if run_mode == "full":
             C.sidebar_header("Review depth", "layers")
@@ -264,7 +312,7 @@ stored or logged by this app. Reviews use tokens billed to your own account.*
             "provider_id": prov["provider_id"],
             "provider_name": provider_name,
             "api_key": api_key.strip(),
-            "base_url": base_url.strip(),
+            "base_url": _normalize_ollama_url(base_url) if prov["provider_id"] == "ollama" else base_url.strip(),
             "model": (custom_model.strip() or model),
             "run_mode": run_mode,
             "depth": depth,
@@ -640,6 +688,9 @@ def main() -> None:
             return
         if needs_llm and cfg["provider_id"] == "ollama" and not cfg["base_url"]:
             st.error("Please enter an Ollama endpoint, for example http://localhost:11434.")
+            return
+        if needs_llm and cfg["provider_id"] == "ollama" and not cfg["model"]:
+            st.error("No Ollama models were found. First install a model with `ollama pull <model-name>`.")
             return
         if uploaded_ext == ".tex" and citation_requested and not bibliography_text:
             st.error("Please upload the matching .bib or .bibtex file before running citation verification.")
