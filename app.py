@@ -169,7 +169,7 @@ def render_sidebar() -> dict:
 
 **Private local option:** install [Ollama](https://ollama.com), run a model on your
 own machine, then choose **Ollama / Local**. On the hosted Streamlit app, `localhost`
-belongs to the cloud server, not your laptop; use the offline app for real local privacy
+belongs to the cloud server, not your device; use the offline app for real local privacy
 or provide a reachable Ollama-compatible endpoint.
 
 *Your key stays in this browser session only. It is sent solely to the provider you
@@ -206,7 +206,7 @@ stored or logged by this app. Reviews use tokens billed to your own account.*
                 placeholder="http://localhost:11434",
                 help=(
                     "Offline app: keep the default. Hosted app: use a reachable "
-                    "Ollama-compatible HTTPS endpoint; the cloud server cannot see your laptop localhost."
+                    "Ollama-compatible HTTPS endpoint; the cloud server cannot see localhost on your device."
                 ),
             )
             st.markdown("[Install Ollama](https://ollama.com)")
@@ -221,7 +221,7 @@ stored or logged by this app. Reviews use tokens billed to your own account.*
                     st.info(
                         "pAIper cannot reach Ollama at `localhost`. If you are using "
                         "`paiper.streamlit.app`, this is expected because the cloud app cannot "
-                        "see Ollama on your laptop. For private local models, run pAIper locally "
+                        "see Ollama on your device. For private local models, run pAIper locally "
                         "and start Ollama. To use Ollama from the hosted app, enter a reachable "
                         "Ollama-compatible endpoint.",
                         icon=":material/cloud_off:",

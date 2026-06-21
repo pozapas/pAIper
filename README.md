@@ -89,7 +89,7 @@ streamlit run app.py
 Then select **Ollama / Local** and keep the endpoint as `http://localhost:11434`.
 pAIper reads the endpoint's installed model list and fills the Model dropdown automatically.
 
-On `https://paiper.streamlit.app/`, `localhost` is the Streamlit Cloud server, not the user's laptop. The hosted app can use an Ollama-compatible endpoint only if that endpoint is reachable from the cloud. Users who do not want manuscripts to pass through an online system should run pAIper locally.
+On `https://paiper.streamlit.app/`, `localhost` is the Streamlit Cloud server, not the user's device. The hosted app can use an Ollama-compatible endpoint only if that endpoint is reachable from the cloud. Users who do not want manuscripts to pass through an online system should run pAIper locally.
 
 ## Review depth
 
