@@ -19,8 +19,8 @@ def usage_suffix(r: ReviewReport) -> str:
 
 def markdown_footer(r: ReviewReport) -> str:
     return (
-        f'<img src="{GITHUB_ICON_URL}" alt="GitHub" width="14" /> '
-        f'_{GENERATED_BY} {SEP} [{PAIPER_REPO_LABEL}]({PAIPER_REPO_URL}) {SEP} {usage_suffix(r)}_'
+        f"_{GENERATED_BY} {SEP} GitHub: [{PAIPER_REPO_LABEL}]({PAIPER_REPO_URL}) "
+        f"{SEP} {usage_suffix(r)}_"
     )
 
 
